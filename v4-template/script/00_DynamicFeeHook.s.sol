@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import {Hooks} from "v4-core/src/libraries/Hooks.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 
-import {Constants} from "./base/Constants.sol";
+import {Constants} from "../script/base/BaseSepoliaConstants.sol";
 import {DynamicFeeHook} from "../src/DynamicFeeHook.sol";
 import {HookMiner} from "v4-periphery/src/utils/HookMiner.sol";
 

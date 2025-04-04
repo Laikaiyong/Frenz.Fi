@@ -5,16 +5,14 @@ import "forge-std/Script.sol";
 import {Hooks} from "v4-core/src/libraries/Hooks.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 
-import {BaseSepoliaConstants} from "../../src/BaseSepoliaConstants.sol";
-import {DynamicFeeHook} from "../../src/DynamicFeeHook.sol";
+import {DynamicFeeHook} from "../src/DynamicFeeHook.sol";
 import {HookMiner} from "v4-periphery/src/utils/HookMiner.sol";
 
 /// @notice Deploys the DynamicFeeHook.sol contract to Base Sepolia
-contract DeployToBaseSepoliaScript is Script, BaseSepoliaConstants {
-    function setUp() public {
-        // Load environment variables
-        // Private key should be loaded from .env file
-    }
+contract DeployHookBaseSepoliaScript is Script {
+    // Base Sepolia PoolManager address
+    address constant POOL_MANAGER = 0x05E73354cFDd6745C338b50BcFDfA3Aa6fA03408;
+    address constant CREATE2_DEPLOYER = address(0x4e59b44847b379578588920cA78FbF26c0B4956C);
 
     function run() public {
         // Get private key from environment variable
@@ -30,13 +28,13 @@ contract DeployToBaseSepoliaScript is Script, BaseSepoliaConstants {
         );
 
         // Mine a salt that will produce a hook address with the correct flags
-        bytes memory constructorArgs = abi.encode(POOLMANAGER);
+        bytes memory constructorArgs = abi.encode(POOL_MANAGER);
         (address hookAddress, bytes32 salt) =
             HookMiner.find(CREATE2_DEPLOYER, flags, type(DynamicFeeHook).creationCode, constructorArgs);
 
         // Deploy the hook using CREATE2
-        DynamicFeeHook dynamicFeeHook = new DynamicFeeHook{salt: salt}(IPoolManager(POOLMANAGER));
-        require(address(dynamicFeeHook) == hookAddress, "DeployToBaseSepoliaScript: hook address mismatch");
+        DynamicFeeHook dynamicFeeHook = new DynamicFeeHook{salt: salt}(IPoolManager(POOL_MANAGER));
+        require(address(dynamicFeeHook) == hookAddress, "Hook address mismatch");
 
         console.log("DynamicFeeHook deployed to Base Sepolia at:", address(dynamicFeeHook));
         

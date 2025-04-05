@@ -9,7 +9,7 @@ export default async function getNftContractMetadataByContracts(network, contrac
     // Ensure dotenv is configured correctly
 
     try {
-        const response = await fetch(`https://web3.nodit.io/v1/${network}/mainnet/token/getTokenContractMetadataByContract`, {
+        const response = await fetch(`https://web3.nodit.io/v1/${network}/mainnet/token/getTokenContractMetadataByContract/`, {
             method: "POST",
             headers: {
                 accept: 'application/json',

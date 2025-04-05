@@ -36,6 +36,10 @@ export default function ChatPage() {
     }
   };
 
+  async function providePortfolioData(){
+    
+  }
+
   useEffect(() => {
     if (authenticated && user?.wallet?.address && selectedNetwork) {
       fetchTokenData();
@@ -50,6 +54,13 @@ export default function ChatPage() {
       setTransformedTokens(transformedTokens) 
     }
   }, [tokenOwned]);
+
+  useEffect(() => {
+    if (transformedTokens) {
+      
+      
+    }
+  }, [transformedTokens]);
 
   // Mock data for token and insurance info
   const relevantInfo = {
@@ -80,7 +91,7 @@ export default function ChatPage() {
     if (!input.trim()) return;
 
     const userMessage = {
-      type: "user",
+      role: "user",
       content: input.trim(), // Ensure content is a non-empty string
     };
 
@@ -88,25 +99,15 @@ export default function ChatPage() {
     setInput("");
     setIsLoading(true);
 
-    try {
-      const response = await getGroqChatCompletion([...messages, userMessage]); // Ensure messages include the new user message
+    const response = await getGroqChatCompletion([...messages, userMessage]); // Ensure messages include the new user message
 
-      const aiMessage = {
-        type: "ai",
-        content: response || "I'm sorry, I couldn't process that.", // Ensure AI response is a valid string
-      };
+    const aiMessage = {
+      role: "assistant",
+      content: response || "I'm sorry, I couldn't process that.", // Ensure AI response is a valid string
+    };
 
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (error) {
-      console.error("Error fetching AI response:", error);
-      const errorMessage = {
-        type: "ai",
-        content: "An error occurred while processing your request.",
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
+    setMessages((prev) => [...prev, aiMessage]);
+    setIsLoading(false);
   };
 
   return (
@@ -127,12 +128,12 @@ export default function ChatPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className={`flex ${
-                    message.type === "user" ? "justify-end" : "justify-start"
+                    message.role === "user" ? "justify-end" : "justify-start"
                   }`}
                 >
                   <div
                     className={`max-w-[70%] p-4 rounded-lg ${
-                      message.type === "user"
+                      message.role === "user"
                         ? "bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white"
                         : "bg-gray-100"
                     }`}

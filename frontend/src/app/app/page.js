@@ -46,7 +46,7 @@ const LIQUIDITY_POOLS = [
   },
 ];
 
-export default function AppPage() {
+function AppContent() {
   const [selectedPill, setSelectedPill] = useState(null);
   const searchParams = useSearchParams();
 
@@ -70,11 +70,6 @@ export default function AppPage() {
   };
 
   return (
-    <Suspense fallback={
-        <div className="fixed inset-0 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      }>
     <AnimatePresence>
       {!selectedPill ? (
         <motion.div
@@ -196,6 +191,22 @@ export default function AppPage() {
         </motion.div>
       )}
     </AnimatePresence>
-    </Suspense>
   );
 }
+
+
+export default function AppPage() {
+    return (
+      <Suspense 
+        fallback={
+          <div className="fixed inset-0 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        }
+      >
+        <AnimatePresence>
+          <AppContent />
+        </AnimatePresence>
+      </Suspense>
+    );
+  }

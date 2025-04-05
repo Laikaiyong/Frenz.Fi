@@ -53,6 +53,16 @@ export default function ChatPage() {
     }
   }, [tokenOwned]);
 
+  useEffect(() => {
+    async function provideAiWithTokenInfo() {
+      const response = await getGroqChatCompletion(transformedTokens+". This is the token profile that I have. Please remember this.");
+
+      console.log(response)
+    }
+
+    provideAiWithTokenInfo()
+  },[transformedTokens]);
+
   // Mock data for token and insurance info
   const relevantInfo = {
     tokens: [
@@ -83,7 +93,7 @@ export default function ChatPage() {
 
     const userMessage = {
       type: "user",
-      content: transformedTokens+". B"+input,
+      content: input,
     };
 
     setMessages((prev) => [...prev, userMessage]);

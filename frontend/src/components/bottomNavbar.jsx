@@ -34,29 +34,6 @@ export default function BottomNav() {
           </svg>
         </Link>
 
-        {/* Tokens */}
-        <Link
-          href="/tokens"
-          className={`p-3 rounded-full transition-all ${
-            isActive("/tokens")
-              ? "bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white"
-              : "text-gray-500 hover:bg-gray-100"
-          }`}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            className="w-6 h-6">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84"
-            />
-          </svg>
-        </Link>
-
         {/* Chat */}
         <Link
           href="/chat"

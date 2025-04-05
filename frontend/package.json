@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@privy-io/react-auth": "^2.8.2",
+    "axios": "^1.8.4",
     "ethers": "^6.13.5",
     "framer-motion": "^12.6.3",
     "groq-sdk": "^0.19.0",

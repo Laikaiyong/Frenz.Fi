@@ -14,28 +14,32 @@ export default function Navbar() {
     // Check localStorage after component mounts
     const pill = localStorage.getItem("selectedPill");
     setSelectedPill(pill);
-    
+
     // Check if MetaMask is available
     checkMetaMaskConnection();
   }, []);
 
   // Check if MetaMask is installed and connected
   const checkMetaMaskConnection = async () => {
-    if (typeof window.ethereum !== 'undefined') {
+    if (typeof window.ethereum !== "undefined") {
       try {
         // Get accounts
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        const accounts = await window.ethereum.request({
+          method: "eth_accounts",
+        });
         if (accounts.length > 0) {
           setAccount(accounts[0]);
           setIsMetaMaskConnected(true);
-          
+
           // Get current network
-          const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+          const chainId = await window.ethereum.request({
+            method: "eth_chainId",
+          });
           updateSelectedNetwork(chainId);
         }
 
         // Setup listeners for account changes
-        window.ethereum.on('accountsChanged', (accounts) => {
+        window.ethereum.on("accountsChanged", (accounts) => {
           if (accounts.length > 0) {
             setAccount(accounts[0]);
             setIsMetaMaskConnected(true);
@@ -46,7 +50,7 @@ export default function Navbar() {
         });
 
         // Listen for chain changes
-        window.ethereum.on('chainChanged', (chainId) => {
+        window.ethereum.on("chainChanged", (chainId) => {
           updateSelectedNetwork(chainId);
         });
       } catch (error) {
@@ -57,37 +61,104 @@ export default function Navbar() {
 
   const updateSelectedNetwork = (chainId) => {
     // Convert chainId to appropriate network key
-    if (chainId === '0x14a33' || chainId === '84531') { // Base Goerli (testnet)
-      setSelectedPill('base');
+    if (chainId === "0x14a33" || chainId === "84531") {
+      // Base Goerli (testnet)
+      setSelectedPill("base");
       localStorage.setItem("selectedPill", "base");
-    } else if (chainId === '0xaeef' || chainId === '44787') { // Celo Alfajores Testnet
-      setSelectedPill('celo');
+    } else if (chainId === "0xaeef" || chainId === "44787") {
+      // Celo Alfajores Testnet
+      setSelectedPill("celo");
       localStorage.setItem("selectedPill", "celo");
-    } else if (chainId === '0xaa36a7' || chainId === '11155111') { // Sepolia - Fixed decimal value
-      setSelectedPill('sepolia');
-      localStorage.setItem("selectedPill", "sepolia");
-    } else if (chainId === '0x2105' || chainId === '8453') { // Base mainnet - Fixed decimal value
-      setSelectedPill('base');
+    } else if (chainId === "0xaa36a7" || chainId === "11155111") {
+      // Sepolia - Fixed decimal value
+      setSelectedPill("ethereum");
+      localStorage.setItem("selectedPill", "ethereum");
+    } else if (chainId === "0x2105" || chainId === "8453") {
+      // Base mainnet - Fixed decimal value
+      setSelectedPill("base");
       localStorage.setItem("selectedPill", "base");
     }
   };
 
+  const NetworkButton = ({ network }) => (
+    <Link
+      href="/app?reset=true"
+      className={`
+        flex mr-2 items-center gap-2 px-4 py-2 rounded-full
+        ${
+          network
+            ? "border-2 border-gray-200 hover:border-gray-300"
+            : "bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C]"
+        }
+        transition-all ml-4 group hover:scale-[1.02]
+      `}>
+      {network ? (
+        <>
+          <img
+            src={networkConfig[network].icon}
+            alt={`${networkConfig[network].name} icon`}
+            className="w-5 h-5 rounded-full"
+          />
+          <span className="text-sm font-medium">
+            {networkConfig[network].name}
+          </span>
+        </>
+      ) : (
+        <>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+          <span className="text-sm font-medium text-white">Select Network</span>
+        </>
+      )}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className={`h-4 w-4 ${network ? "text-gray-500" : "text-white"}`}
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M19 9l-7 7-7-7"
+        />
+      </svg>
+    </Link>
+  );
+
   // Connect to MetaMask
   const connectMetaMask = async () => {
-    if (typeof window.ethereum !== 'undefined') {
+    if (typeof window.ethereum !== "undefined") {
       try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
         setAccount(accounts[0]);
         setIsMetaMaskConnected(true);
-        
+
         // Get current network after connection
-        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        const chainId = await window.ethereum.request({
+          method: "eth_chainId",
+        });
         updateSelectedNetwork(chainId);
       } catch (error) {
         console.error("User rejected the connection request", error);
       }
     } else {
-      alert("MetaMask is not installed. Please install it to use this feature.");
+      alert(
+        "MetaMask is not installed. Please install it to use this feature."
+      );
     }
   };
 
@@ -99,66 +170,71 @@ export default function Navbar() {
 
   // Switch network in MetaMask
   const switchNetwork = async (networkName) => {
-    if (typeof window.ethereum === 'undefined') {
-      alert("MetaMask is not installed. Please install it to use this feature.");
+    if (typeof window.ethereum === "undefined") {
+      alert(
+        "MetaMask is not installed. Please install it to use this feature."
+      );
       return;
     }
 
     try {
       // Network parameters for different networks
       let params;
-      if (networkName === 'base') {
+      if (networkName === "base") {
         // Base Mainnet
         params = {
-          chainId: '0x2105', // 8453 in hex
-          chainName: 'Base Mainnet',
+          chainId: "0x2105", // 8453 in hex
+          chainName: "Base Mainnet",
           nativeCurrency: {
-            name: 'ETH',
-            symbol: 'ETH',
-            decimals: 18
+            name: "ETH",
+            symbol: "ETH",
+            decimals: 18,
           },
-          rpcUrls: ['https://mainnet.base.org'],
-          blockExplorerUrls: ['https://basescan.org']
+          rpcUrls: ["https://mainnet.base.org"],
+          blockExplorerUrls: ["https://basescan.org"],
         };
-      } else if (networkName === 'celo') {
+      } else if (networkName === "celo") {
         // Celo Alfajores L2 Testnet
         params = {
-          chainId: '0xaeef', // 44787 in hex
-          chainName: 'Celo Alfajores',
+          chainId: "0xaeef", // 44787 in hex
+          chainName: "Celo Alfajores",
           nativeCurrency: {
-            name: 'CELO',
-            symbol: 'CELO',
-            decimals: 18
+            name: "CELO",
+            symbol: "CELO",
+            decimals: 18,
           },
-          rpcUrls: ['https://alfajores-forno.celo-testnet.org'],
-          blockExplorerUrls: ['https://alfajores.celoscan.io', 'https://celo-alfajores.blockscout.com/']
+          rpcUrls: ["https://alfajores-forno.celo-testnet.org"],
+          blockExplorerUrls: [
+            "https://alfajores.celoscan.io",
+            "https://celo-alfajores.blockscout.com/",
+          ],
         };
-      } else if (networkName === 'sepolia') {
+      } else if (networkName === "sepolia") {
         // Sepolia testnet
         params = {
-          chainId: '0xaa36a7', // 11155111 in hex
-          chainName: 'Sepolia Testnet',
+          chainId: "0xaa36a7", // 11155111 in hex
+          chainName: "Sepolia Testnet",
           nativeCurrency: {
-            name: 'ETH',
-            symbol: 'ETH',
-            decimals: 18
+            name: "ETH",
+            symbol: "ETH",
+            decimals: 18,
           },
-          rpcUrls: ['https://rpc.sepolia.org'],
-          blockExplorerUrls: ['https://sepolia.etherscan.io']
+          rpcUrls: ["https://rpc.sepolia.org"],
+          blockExplorerUrls: ["https://sepolia.etherscan.io"],
         };
       }
 
       // Try to switch to the network
       try {
         await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
+          method: "wallet_switchEthereumChain",
           params: [{ chainId: params.chainId }],
         });
       } catch (switchError) {
         // This error code indicates that the chain has not been added to MetaMask.
         if (switchError.code === 4902) {
           await window.ethereum.request({
-            method: 'wallet_addEthereumChain',
+            method: "wallet_addEthereumChain",
             params: [params],
           });
         } else {
@@ -176,17 +252,17 @@ export default function Navbar() {
 
   const networkConfig = {
     base: {
-      name: "Base Mainnet",
+      name: "Base",
       icon: "https://payload-marketing.moonpay.com/api/media/file/base%20logo.webp",
       color: "#0052FF",
     },
     celo: {
-      name: "Celo Alfajores",
+      name: "Celo",
       icon: "https://celo.org/favicon.ico",
       color: "#FBCC5C",
     },
-    sepolia: {
-      name: "Sepolia Testnet",
+    ethereum: {
+      name: "Ethereum",
       icon: "https://images.seeklogo.com/logo-png/40/2/ethereum-logo-png_seeklogo-407463.png",
       color: "#627EEA",
     },
@@ -201,12 +277,12 @@ export default function Navbar() {
           onClick={() => switchNetwork(network)}
           className={`
             flex items-center px-4 py-2 rounded-full transition-all hover:scale-[1.02]
-            ${selectedPill === network 
-              ? "border-2 border-gray-300 bg-white" 
-              : "border-2 border-gray-200 hover:border-gray-300 bg-white"
+            ${
+              selectedPill === network
+                ? "border-2 border-gray-300 bg-white"
+                : "border-2 border-gray-200 hover:border-gray-300 bg-white"
             }
-          `}
-        >
+          `}>
           <img
             src={networkConfig[network].icon}
             alt={`${networkConfig[network].name} icon`}
@@ -233,7 +309,7 @@ export default function Navbar() {
             Frenz.fi
           </a>
           <div>
-            <NetworkButtons />
+            <NetworkButton network="" />
           </div>
         </div>
       </nav>
@@ -253,15 +329,15 @@ export default function Navbar() {
         </a>
         <>
           <div className="flex items-center">
-            <NetworkButtons />
-            
+            <NetworkButton network={selectedPill} />
+
             {/* Display MetaMask address if connected */}
             {isMetaMaskConnected && account && (
               <span className="text-sm mx-3 text-gray-600">
                 {account.slice(0, 6)}...{account.slice(-4)}
               </span>
             )}
-            
+
             {/* MetaMask Connect/Disconnect Button */}
             <div
               className={`${
@@ -270,7 +346,9 @@ export default function Navbar() {
                   : ""
               }`}>
               <button
-                onClick={isMetaMaskConnected ? disconnectMetaMask : connectMetaMask}
+                onClick={
+                  isMetaMaskConnected ? disconnectMetaMask : connectMetaMask
+                }
                 className={`px-6 py-2 rounded-full font-bold ${
                   isMetaMaskConnected
                     ? "bg-white hover:bg-transparent text-black hover:text-white"

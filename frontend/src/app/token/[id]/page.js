@@ -5,9 +5,10 @@ import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { usePrivy } from "@privy-io/react-auth";
 import getTokenHoldersByContract from "@/utils/nodit/token/useGetTokenHoldersByContract";
-// import useGetTokenPricesByContracts from "@/app/api/nodit/token/useGetTokenPricesByContracts";
 import getTokenTransfersByContract from "@/utils/nodit/token/useGetTokenTransfersByContract";
 import getTokenContractMetadataByContracts from "@/utils/nodit/token/useGetTokenContractMetadataByContracts";
+import CreatePool from "@/components/CreatePool";
+import CreateLiquidityPosition from "@/components/CreateLiquidityPosition";
 
 export default function TokenDetailPage() {
   const { id } = useParams();
@@ -18,7 +19,12 @@ export default function TokenDetailPage() {
   const [tokenHolders, setTokenHolders] = useState();
   const [tokenPrice, setTokenPrice] = useState();
   const [tokenTransfers, setTokenTransfers] = useState();
-  const [tokenMetadata, setTokenMetadata] = useState();
+  const [tokenMetadata, setTokenMetadata] = useState('');
+  const [apiErrors, setApiErrors] = useState('');
+  const [pools, setPools] = useState([]);
+  const [isEmergencyMode, setIsEmergencyMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [uniswapError, setUniswapError] = useState(null);
 
   const [poolData, setPoolData] = useState(null);
   const [selectedNetwork, setSelectedNetwork] = useState(null);
@@ -95,10 +101,8 @@ export default function TokenDetailPage() {
   // Fetch Uniswap v4 dynamic fee pools
   useEffect(() => {
     const fetchUniswapData = async () => {
-      if (!ready) return;
-      
+      setIsLoading(true);
       try {
-        setIsLoading(true);
         
         // Fetch pool information from your API
         const poolsResponse = await fetch('/api/uniswap?action=getPoolInfo');
@@ -134,7 +138,7 @@ export default function TokenDetailPage() {
     const interval = setInterval(fetchUniswapData, 30000);
     
     return () => clearInterval(interval);
-  }, [ready]);
+  }, []);
 
   // Check if user is a holder
   useEffect(() => {
@@ -156,21 +160,20 @@ export default function TokenDetailPage() {
   // Fetch token data
   useEffect(() => {
     const fetchTokenData = async () => {
-      if (!id) return;
+        if (!id || !selectedNetwork) return;
+
+        let network = localStorage.getItem("selectedPill");
       
       try {
-        const tokenHolders = await getTokenHoldersByContract(id);
+        const tokenHolders = await getTokenHoldersByContract(network, id);
         // const tokenPrices = await useGetTokenPricesByContracts(id);
-        const tokenTransfers = await getTokenTransfersByContract(id);
-        const tokenMetadata = await getTokenContractMetadataByContracts(selectedNetwork, id);
+        const tokenTransfers = await getTokenTransfersByContract(network, id);
+        const tokenMetadata = await getTokenContractMetadataByContracts(network, id);
 
-        console.log("tokenHolders", tokenHolders);
-        console.log("tokenTransfers", tokenTransfers);
-        console.log("tokenMetadata", tokenMetadata);
         setTokenHolders(tokenHolders);
         // setTokenPrices(tokenPrices);
         setTokenTransfers(tokenTransfers);
-        setTokenMetadata(tokenMetadata);
+        setTokenMetadata(tokenMetadata[0]);
       } catch (error) {
         console.error("Error fetching token data:", error);
       }
@@ -179,20 +182,7 @@ export default function TokenDetailPage() {
     if (id) {
       fetchTokenData();
     }
-  }, [id]);
-
-
-  // Mock token data
-  const tokenData = {
-    name: tokenMetadata?.name || "Sample Token",
-    symbol: tokenMetadata?.symbol || "SMPL",
-    price: tokenPrices?.price ? `$${tokenPrices.price}` : "$1.23",
-    priceChange: tokenPrices?.priceChange || "+5.67%",
-    marketCap: tokenPrices?.marketCap || "$1.2M",
-    volume: tokenPrices?.volume || "$250K",
-    liquidity: tokenPrices?.liquidity || "$500K",
-    holders: Array.isArray(tokenHolders) ? tokenHolders.length : 0,
-  };
+  }, [id, selectedNetwork]);
 
   // Mock forum posts
   const forumPosts = [
@@ -229,9 +219,9 @@ export default function TokenDetailPage() {
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold mb-2">
-              {tokenData.name}
+              {`${tokenMetadata?.name}`}
               <span className="ml-2 text-gray-500 text-xl">
-                {tokenData.symbol}
+                {`${tokenMetadata?.symbol}`}
               </span>
             </h1>
             <div className="flex items-center gap-4">
@@ -251,14 +241,6 @@ export default function TokenDetailPage() {
                   </span>
                 </div>
               </div>
-              <span
-                className={`text-lg ${
-                  tokenData.priceChange.startsWith("+")
-                    ? "text-green-500"
-                    : "text-red-500"
-                }`}>
-                {tokenData.priceChange}
-              </span>
             </div>
           </div>
 
@@ -314,30 +296,33 @@ export default function TokenDetailPage() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="lg:col-span-1 space-y-6">
-          {/* Market Stats */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-xl p-6">
-            <h2 className="text-xl font-bold mb-4">Market Stats</h2>
-            <div className="space-y-4">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Market Cap</span>
-                <span className="font-bold">${tokenStats.marketCap}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">24h Volume</span>
-                <span className="font-bold">${tokenStats.volume24h}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Liquidity</span>
-                <span className="font-bold">${tokenStats.liquidity}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Locked Liquidity</span>
-                <span className="font-bold">{tokenStats.lockedLiquidity}%</span>
-              </div>
-            </div>
-          </div>
+                <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-xl p-6">
+                <h2 className="text-xl font-bold mb-4">Market Stats</h2>
+                <div className="space-y-4">
+                  <div className="flex justify-between">
+                  <span className="text-gray-600">Market Cap</span>
+                  <span className="font-bold">${tokenStats.marketCap}</span>
+                  </div>
+                  <div className="flex justify-between">
+                  <span className="text-gray-600">24h Volume</span>
+                  <span className="font-bold">{tokenStats.volume24h}</span>
+                  </div>
+                  <div className="flex justify-between">
+                  <span className="text-gray-600">Total Supply</span>
+                  <span className="font-bold">{tokenMetadata?.totalSupply}</span>
+                  </div>
+                  <div className="flex justify-between">
+                  <span className="text-gray-600">Liquidity</span>
+                  <span className="font-bold">{tokenStats.liquidity}</span>
+                  </div>
+                  <div className="flex justify-between">
+                  <span className="text-gray-600">Locked Liquidity</span>
+                  <span className="font-bold">{tokenStats.lockedLiquidity}%</span>
+                  </div>
+                </div>
+                </div>
 
-          {/* Sentiment Meter */}
+                {/* Sentiment Meter */}
           <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-xl p-6">
             <h2 className="text-xl font-bold mb-4">Market Sentiment</h2>
             <div className="relative h-4 bg-gray-200 rounded-full overflow-hidden">
@@ -500,9 +485,9 @@ export default function TokenDetailPage() {
                 <div className="flex justify-between items-center p-4 border border-gray-200 rounded-lg">
                   <div>
                     <h3 className="font-bold">Token/USDC Pool</h3>
-                    <p className="text-gray-600">
+                    {/* <p className="text-gray-600">
                       Total Liquidity: {tokenData.liquidity}
-                    </p>
+                    </p> */}
                   </div>
                   <button 
                     onClick={() => document.getElementById('createPool').scrollIntoView({ behavior: 'smooth' })}

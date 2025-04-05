@@ -18,8 +18,9 @@ export default function ChatPage() {
   const chatEndRef = useRef(null);
   const [tokenOwned, setTokenOwned] = useState();
   const [transformedTokens, setTransformedTokens] = useState();
-  const [selectedNetwork, setSelectedNetwork] = useState()
-  
+  const [selectedNetwork, setSelectedNetwork] = useState();
+  const [searchResults, setSearchResults] = useState(null);
+
   useEffect(() => {
     const network = localStorage.getItem("selectedPill");
     setSelectedNetwork(network);
@@ -27,18 +28,16 @@ export default function ChatPage() {
 
   const fetchTokenData = async () => {
     try {
-      const tokenOwned = await getTokensOwnedByAccount(selectedNetwork,
-        '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045');
+      const tokenOwned = await getTokensOwnedByAccount(
+        selectedNetwork,
+        user?.wallet?.address
+      );
 
       setTokenOwned(tokenOwned);
     } catch (error) {
       console.error("Error fetching token data:", error);
     }
   };
-
-  async function providePortfolioData(){
-    
-  }
 
   useEffect(() => {
     if (authenticated && user?.wallet?.address && selectedNetwork) {
@@ -48,19 +47,15 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (tokenOwned) {
-      const transformedTokens = tokenOwned.items.map(token => 
-      `Name: ${token.contract.name}, Total Supply: ${token.contract.totalSupply}, Balance: ${token.balance}`
-      ).join("; ");
-      setTransformedTokens(transformedTokens) 
+      const transformedTokens = tokenOwned.items
+        .map(
+          (token) =>
+            `Name: ${token.contract.name}, Total Supply: ${token.contract.totalSupply}, Balance: ${token.balance}`
+        )
+        .join("; ");
+      setTransformedTokens(transformedTokens);
     }
   }, [tokenOwned]);
-
-  useEffect(() => {
-    if (transformedTokens) {
-      
-      
-    }
-  }, [transformedTokens]);
 
   // Mock data for token and insurance info
   const relevantInfo = {
@@ -92,26 +87,40 @@ export default function ChatPage() {
 
     const userMessage = {
       role: "user",
-      content: input.trim(), // Ensure content is a non-empty string
+      content: input.trim(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
 
-    const response = await getGroqChatCompletion([...messages, userMessage]); // Ensure messages include the new user message
+    try {
+      const response = await getGroqChatCompletion(input.trim(), [...messages]);
+      setSearchResults(response.searchResults);
 
-    const aiMessage = {
-      role: "assistant",
-      content: response || "I'm sorry, I couldn't process that.", // Ensure AI response is a valid string
-    };
+      const aiMessage = {
+        role: "assistant",
+        content: response.message || "I'm sorry, I couldn't process that.",
+      };
 
-    setMessages((prev) => [...prev, aiMessage]);
-    setIsLoading(false);
+      setMessages((prev) => [...prev, aiMessage]);
+    } catch (error) {
+      console.error("Error:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "I apologize, but I encountered an error processing your request.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="mt-20 container mx-auto px-4 max-w-6xl min-h-screen">
+    <div className="mt-20 container mx-auto px-4 max-w-6xl">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Chat Area */}
         <div className="lg:col-span-3">
@@ -119,7 +128,7 @@ export default function ChatPage() {
             <h1 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C]">
               AI Assistant
             </h1>
-            
+
             {/* Messages Container */}
             <div className="flex-grow overflow-y-auto mb-4 space-y-4">
               {messages.map((message, index) => (
@@ -129,15 +138,13 @@ export default function ChatPage() {
                   animate={{ opacity: 1, y: 0 }}
                   className={`flex ${
                     message.role === "user" ? "justify-end" : "justify-start"
-                  }`}
-                >
+                  }`}>
                   <div
                     className={`max-w-[70%] p-4 rounded-lg ${
                       message.role === "user"
                         ? "bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white"
                         : "bg-gray-100"
-                    }`}
-                  >
+                    }`}>
                     {message.content}
                   </div>
                 </motion.div>
@@ -164,8 +171,7 @@ export default function ChatPage() {
                 />
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white rounded-full hover:opacity-90 transition-all transform hover:scale-105"
-                >
+                  className="px-6 py-2 bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white rounded-full hover:opacity-90 transition-all transform hover:scale-105">
                   Send
                 </button>
               </div>
@@ -173,64 +179,61 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* Sidebar Information */}
-        <div className="lg:col-span-1 space-y-6">
-          {/* Token Information */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="bg-white/80 backdrop-blur-sm rounded-lg shadow-xl p-6"
-          >
-            <h2 className="text-xl font-bold mb-4">Related Tokens</h2>
-            <div className="space-y-3">
-              {relevantInfo.tokens.map((token) => (
-                <Link
-                  key={token.id}
-                  href={`/token/${token.id}`}
-                  className="block p-3 rounded-lg hover:bg-gray-50 transition-all"
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">{token.name}</span>
-                    <span className="text-gray-600">{token.price}</span>
+        {/* Search Results Panel */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-24 space-y-4">
+            {searchResults && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white/80 backdrop-blur-sm rounded-lg shadow-xl p-4">
+                <h2 className="text-lg font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#627EEA] to-[#0052FF]">
+                  References
+                </h2>
+
+                {searchResults.knowledge && (
+                  <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <h3 className="font-bold text-sm text-gray-800 mb-2">
+                      {searchResults.knowledge.title}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {searchResults.knowledge.description}
+                    </p>
+                    {searchResults.knowledge.attributes && (
+                      <div className="mt-2 text-xs text-gray-500">
+                        {Object.entries(searchResults.knowledge.attributes).map(
+                          ([key, value]) => (
+                            <div key={key} className="flex justify-between">
+                              <span>{key}:</span>
+                              <span>{value}</span>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    )}
                   </div>
-                </Link>
-              ))}
-            </div>
-          </motion.div>
+                )}
 
-          {/* Governance Information */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white/80 backdrop-blur-sm rounded-lg shadow-xl p-6"
-          >
-            <h2 className="text-xl font-bold mb-4">Governance</h2>
-            <div className="space-y-2">
-              <p>Active Proposals: {relevantInfo.governance.proposals}</p>
-              <p>Ongoing Votes: {relevantInfo.governance.activeVotes}</p>
-            </div>
-          </motion.div>
-
-          {/* Insurance Information */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white/80 backdrop-blur-sm rounded-lg shadow-xl p-6"
-          >
-            <h2 className="text-xl font-bold mb-4">Insurance</h2>
-            <div className="space-y-2">
-              <p>Coverage: {relevantInfo.insurance.coverage}</p>
-              <p>Premium: {relevantInfo.insurance.premium}</p>
-              <Link
-                href="/insurance"
-                className="inline-block mt-2 text-[#0052FF] hover:underline"
-              >
-                View Details →
-              </Link>
-            </div>
-          </motion.div>
+                <div className="space-y-3">
+                  {searchResults.results.map((result, index) => (
+                    <a
+                      key={index}
+                      href={result.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block p-3 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100 transition-all">
+                      <h3 className="font-bold text-sm text-blue-600 mb-1">
+                        [{index + 1}] {result.title}
+                      </h3>
+                      <p className="text-xs text-gray-600 line-clamp-2">
+                        {result.snippet}
+                      </p>
+                    </a>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </div>
         </div>
       </div>
     </div>

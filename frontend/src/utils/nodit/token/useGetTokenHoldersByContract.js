@@ -5,7 +5,7 @@
  * @returns {Promise<Object>} A promise that resolves to the response object containing the protocols' current values.
  * @throws {Error} Throws an error if the HTTP request fails or the response is not ok.
  */
-export default async function getTokenHoldersByContract(contractAddress, page = null, rpp = null, cursor = null, withCount = false) {
+export default async function getTokenHoldersByContract(network,contractAddress, page = null, rpp = null, cursor = null, withCount = false) {
     // Ensure dotenv is configured correctly
 
     const body = {
@@ -18,7 +18,7 @@ export default async function getTokenHoldersByContract(contractAddress, page = 
     if (cursor) body.cursor = cursor;
 
     try {
-        const response = await fetch("https://web3.nodit.io/v1/base/mainnet/token/getTokenHoldersByContract", {
+        const response = await fetch(`https://web3.nodit.io/v1/${network}/mainnet/token/getTokenHoldersByContract`, {
             method: "POST",
             headers: {
                 accept: 'application/json',

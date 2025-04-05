@@ -52,7 +52,16 @@ export async function getPoolsByNetwork(network) {
     if (!response.ok) throw new Error("Failed to fetch pools");
 
     const data = await response.json();
-    return data.data.slice(0, 10);
+    const pools = data.data;
+    const randomPools = [];
+    const poolsCopy = [...pools];
+    
+    for (let i = 0; i < 10 && poolsCopy.length > 0; i++) {
+        const randomIndex = Math.floor(Math.random() * poolsCopy.length);
+        randomPools.push(poolsCopy.splice(randomIndex, 1)[0]);
+    }
+    
+    return randomPools;
   } catch (error) {
     console.error("Error fetching pools:", error);
     return [];
@@ -267,23 +276,6 @@ function AppContent() {
                   </Link>
                 ))
               )}
-            </div>
-          </div>
-
-          {/* AI Advisor Section */}
-          <div className="mt-8 bg-white/50 dark:bg-black/50 backdrop-blur-md rounded-2xl p-6 shadow-xl">
-            <h2 className="text-2xl font-bold mb-4">AI Advisor</h2>
-            <div className="flex items-center space-x-4 p-4 rounded-lg bg-white/30 dark:bg-black/30">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#00EF8B] to-[#0052FF] flex items-center justify-center">
-                🤖
-              </div>
-              <div>
-                <p className="font-medium">Today&apos;s Advice</p>
-                <p className="text-gray-600 dark:text-gray-400">
-                  &ldquo;Market sentiment is bullish! Consider providing
-                  liquidity to PEPE/ETH pool for optimal yields.&ldquo;
-                </p>
-              </div>
             </div>
           </div>
 

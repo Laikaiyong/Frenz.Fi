@@ -258,7 +258,7 @@ export default function Navbar() {
     },
     celo: {
       name: "Celo",
-      icon: "https://celo.org/favicon.ico",
+      icon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyejSxfv1VRb4-lAhpR2xyG-_-A1XH0n9riw&s",
       color: "#FBCC5C",
     },
     ethereum: {

@@ -43,6 +43,15 @@ export default function ChatPage() {
   }, [authenticated, user?.wallet?.address, selectedNetwork]);
 
   useEffect(() => {
+    async function provideAiWithTokenInfo() {
+      if(transformedTokens){
+        const response = await getGroqChatCompletion(transformedTokens+". This is the token profile that I have. Please remember this.");
+
+        
+              }
+
+    }
+
     if (tokenOwned) {
       const transformedTokens = tokenOwned.items.map(token => ({
         name: token.contract.name,
@@ -54,11 +63,7 @@ export default function ChatPage() {
   }, [tokenOwned]);
 
   useEffect(() => {
-    async function provideAiWithTokenInfo() {
-      const response = await getGroqChatCompletion(transformedTokens+". This is the token profile that I have. Please remember this.");
-
-      console.log(response)
-    }
+    
 
     provideAiWithTokenInfo()
   },[transformedTokens]);

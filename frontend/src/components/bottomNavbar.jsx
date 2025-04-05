@@ -38,7 +38,7 @@ export default function BottomNav() {
         <Link
           href="/tokens"
           className={`p-3 rounded-full transition-all ${
-            isActive("/launch")
+            isActive("/tokens")
               ? "bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white"
               : "text-gray-500 hover:bg-gray-100"
           }`}>

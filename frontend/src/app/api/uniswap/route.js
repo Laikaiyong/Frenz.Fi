@@ -15,7 +15,7 @@ const POSITION_MANAGER_ADDRESS = "0x4B2C77d209D3405F41a037Ec6c77F7F5b8e2ca80"; /
 
 // Provider setup - using Base Mainnet
 const RPC_URL = process.env.BASE_RPC_URL || "https://mainnet.base.org";
-const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+const provider = new ethers.JsonRpcProvider(RPC_URL);
 
 // Initialize contract instance
 const hookContract = new ethers.Contract(HOOK_ADDRESS, DynamicFeeHookABI, provider);
@@ -50,7 +50,7 @@ function formatPoolKey(currency0, currency1, fee, tickSpacing) {
 
 // Calculate pool ID from pool key (simplified version - actual calculation may vary)
 function getPoolId(currency0, currency1, fee, tickSpacing) {
-  return ethers.solidityKeccak256(
+  return ethers.solidityPackedKeccak256(
     ['address', 'address', 'uint24', 'int24', 'address'],
     [currency0, currency1, parseInt(fee), parseInt(tickSpacing), HOOK_ADDRESS]
   );
@@ -279,7 +279,7 @@ export async function GET(request) {
                   currentFee: currentFee.toNumber(),
                   formattedCurrentFee: formatFeePercentage(currentFee),
                   totalVolume: totalVolume.toString(),
-                  formattedVolume: ethers.utils.formatEther(totalVolume),
+                  formattedVolume: ethers.formatEther(totalVolume),
                   swapCount: swapCount.toString(),
                   poolId: poolId
                 };

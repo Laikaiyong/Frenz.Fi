@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
  * 
  * @returns {status} - status of the action performed
  */
-export default async function useDistributeTokenToAddress(tokenAddress, receiverAddress, amount){
+export default async function distributeTokenToAddress(tokenAddress, receiverAddress, amount){
     const response = await fetch(
         `https://api.metal.build/token/${tokenAddress}/distribute`,
         {

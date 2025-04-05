@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
  * 
  * @returns {Array<Json>} A promise that resolves to the token information.
  */
-export default async function useGetAllTokensOfAddress(tokenAddress) {
+export default async function getAllTokensOfAddress(tokenAddress) {
     const response = await fetch(`https://api.metal.build/token/${tokenAddress}`, {
         headers: {
             'x-api-key': process.env.METAL_SECRET_API,

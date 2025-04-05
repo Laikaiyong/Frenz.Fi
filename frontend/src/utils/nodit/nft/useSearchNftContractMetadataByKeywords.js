@@ -16,7 +16,7 @@ dotenv.config();
  * @returns {Promise<Object>} A promise that resolves to the response object containing the protocols' current values.
  * @throws {Error} Throws an error if the HTTP request fails or the response is not ok.
  */
-export default async function useSearchNftContractMetadataByKeywords(keyword, page = null, rpp = null, cursor = null, withCount = false) {
+export default async function searchNftContractMetadataByKeywords(keyword, page = null, rpp = null, cursor = null, withCount = false) {
 
     const body = {
         kayword: keyword,

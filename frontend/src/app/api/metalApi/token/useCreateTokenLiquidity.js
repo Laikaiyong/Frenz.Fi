@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
  * 
  * @returns {status} - status of the action performed
  */
-export default async function useCreateTokenLiquidity(tokenAddress){
+export default async function createTokenLiquidity(tokenAddress){
     const response = await fetch(
         `https://api.metal.build/token/${tokenAddress}/liquidity`,
         {

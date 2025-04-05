@@ -21,7 +21,7 @@ dotenv.config();
  * @returns {Promise<Object>} A promise that resolves to the response object containing the NFT transfers.
  * @throws {Error} Throws an error if the HTTP request fails or the response is not ok.
  */
-export default async function useGetNftTransfersByAccount(accountAddress, relation = null, contractAddress = null, fromBlock = null, toBlock = null, fromDate = null, toDate = null, page = null, rpp = null, cursor = null, withCount = false, withMetadata = false, withZeroValue = false) {
+export default async function getNftTransfersByAccount(accountAddress, relation = null, contractAddress = null, fromBlock = null, toBlock = null, fromDate = null, toDate = null, page = null, rpp = null, cursor = null, withCount = false, withMetadata = false, withZeroValue = false) {
 
     const body = {
         accountAddress: accountAddress,

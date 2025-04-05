@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
  * 
  * @returns {boolean} the status of the wwithdrawalof token
  */
-export default async function useSpendToken(userId, tokenAddress, amount){
+export default async function spendToken(userId, tokenAddress, amount){
     const response = await fetch(
         `https://api.metal.build/holder/${userId}/spend`,
         {

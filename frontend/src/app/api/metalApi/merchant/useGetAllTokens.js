@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
  * 
  * @returns {json} - status of the token creation
  */
-export default async function useGetAllTokens(){
+export default async function getAllTokens(){
     const response = await fetch(
         'https://api.metal.build/merchant/all-tokens',
         {

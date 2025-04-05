@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
  * 
  * @returns {json} - status of the token creation
  */
-export default async function useGetCreationTokenStatus(jobId){
+export default async function getCreationTokenStatus(jobId){
     const statusUrl = `https://api.metal.build/merchant/create-token/status/${jobId}`;
 
     const response = await fetch(statusUrl, {

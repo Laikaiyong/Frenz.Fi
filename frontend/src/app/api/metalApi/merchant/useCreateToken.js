@@ -11,7 +11,7 @@ import dotenv from 'dotenv';
  * 
  * @returns {string} - the id of the creation of token
  */
-export default async function useCreateToken(tokenName, tokenSymbol, canDistribute, canLP, merchantAddress){
+export default async function ceateToken(tokenName, tokenSymbol, canDistribute, canLP, merchantAddress){
     const response = await fetch('https://api.metal.build/merchant/create-token', {
         method: 'POST',
         headers: {

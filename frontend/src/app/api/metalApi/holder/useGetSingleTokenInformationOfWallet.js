@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
  * 
  * @returns {json} - status of the token creation
  */
-export default async function useGetSingleTokenInformationOfWallet(holderWalletAddress, tokenAddress){
+export default async function getSingleTokenInformationOfWallet(holderWalletAddress, tokenAddress){
   const response = await fetch(
     `https://api.metal.build/holder/${holderWalletAddress}/token/${tokenAddress}`,
     {

@@ -11,7 +11,7 @@ dotenv.config();
  * @returns {Promise<Object>} A promise that resolves to the response object containing the protocols' current values.
  * @throws {Error} Throws an error if the HTTP request fails or the response is not ok.
  */
-export default async function useSyncNftMetadata(contractAddress1, tokenId1, contractAddress2, tokenId2) {
+export default async function syncNftMetadata(contractAddress1, tokenId1, contractAddress2, tokenId2) {
 
     try {
         const response = await fetch("https://web3.nodit.io/v1/base/mainnet/nft/getNftTransfersWithinRange", {

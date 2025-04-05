@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
  * 
  * @returns {boolean} the status of the withdrawal of token
  */
-export default async function useWithdrawTokens(tokenAddress, amount, receiverAddress) {
+export default async function withdrawTokens(tokenAddress, amount, receiverAddress) {
     const response = await fetch(
         `https://api.metal.build/holder/${userId}/withdraw`,
         {

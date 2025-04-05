@@ -2,10 +2,25 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+remappings = [
+    "@uniswap/v4-core/=lib/v4-core/",
+    "forge-gas-snapshot/=lib/v4-core/lib/forge-gas-snapshot/src/",
+    "forge-std/=lib/v4-core/lib/forge-std/src/",
+    "permit2/=lib/v4-periphery/lib/permit2/",
+    "solmate/=lib/v4-core/lib/solmate/",
+    "v4-core/=lib/v4-core/",
+    "v4-periphery/=lib/v4-periphery/",
+    "@openzeppelin/=lib/v4-core/lib/openzeppelin-contracts/",
+    "@openzeppelin/uniswap-hooks=lib/uniswap-hooks/"
+]
 ffi = true
 fs_permissions = [{ access = "read-write", path = ".forge-snapshots/"}]
 solc_version = "0.8.26"
 evm_version = "cancun"
+
+[profile.base-sepolia]
+chain = 84532
+base_sepolia = "https://base-sepolia.g.alchemy.com/v2/GbQIfyw0myWOarypoVsyfL_nxPn4SWCk"
 
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

@@ -6,7 +6,7 @@ import {IHooks} from "v4-core/src/interfaces/IHooks.sol";
 import {Currency} from "v4-core/src/types/Currency.sol";
 
 /// @notice Shared configuration for Base Sepolia
-contract Config {
+contract BaseSepoliaConfig {
     // Common tokens on Base Sepolia
     // WETH on Base Sepolia
     IERC20 constant token0 = IERC20(address(0x4200000000000000000000000000000000000006));

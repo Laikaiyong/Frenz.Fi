@@ -33,18 +33,21 @@ export default function Navbar() {
   };
 
   const NetworkButton = ({ network }) => (
-    <Link 
+    <Link
       href="/app?reset=true"
       className={`
         flex mr-2 items-center gap-2 px-4 py-2 rounded-full
-        ${network ? 'border-2 border-gray-200 hover:border-gray-300' : 'bg-gradient-to-r from-[#00EF8B] via-[#0052FF] to-[#FBCC5C]'}
+        ${
+          network
+            ? "border-2 border-gray-200 hover:border-gray-300"
+            : "bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C]"
+        }
         transition-all ml-4 group hover:scale-[1.02]
-      `}
-    >
+      `}>
       {network ? (
         <>
-          <img 
-            src={networkConfig[network].icon} 
+          <img
+            src={networkConfig[network].icon}
             alt={`${networkConfig[network].name} icon`}
             className="w-5 h-5 rounded-full"
           />
@@ -54,37 +57,33 @@ export default function Navbar() {
         </>
       ) : (
         <>
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            className="w-5 h-5 text-white" 
-            fill="none" 
-            viewBox="0 0 24 24" 
-            stroke="currentColor"
-          >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={2} 
-              d="M19 9l-7 7-7-7" 
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
             />
           </svg>
-          <span className="text-sm font-medium text-white">
-            Select Network
-          </span>
+          <span className="text-sm font-medium text-white">Select Network</span>
         </>
       )}
-      <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        className={`h-4 w-4 ${network ? 'text-gray-500' : 'text-white'}`}
-        fill="none" 
-        viewBox="0 0 24 24" 
-        stroke="currentColor"
-      >
-        <path 
-          strokeLinecap="round" 
-          strokeLinejoin="round" 
-          strokeWidth={2} 
-          d="M19 9l-7 7-7-7" 
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className={`h-4 w-4 ${network ? "text-gray-500" : "text-white"}`}
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M19 9l-7 7-7-7"
         />
       </svg>
     </Link>
@@ -123,7 +122,7 @@ export default function Navbar() {
           Frenz.fi
         </a>
         <>
-        {ready && (
+          {ready && (
             <div className="flex items-center">
               <NetworkButton network={selectedPill} />
               {authenticated && (

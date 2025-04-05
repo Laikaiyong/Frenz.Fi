@@ -12,43 +12,108 @@ import Link from "next/link";
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import PillsScreen from "@/components/pillsScreen";
+import getTokenContractMetadataByContracts from "../../utils/nodit/token/useGetTokenContractMetadataByContracts";
 
-// Mock data - Replace with actual data from your backend
-const LAUNCHED_TOKENS = [
-  {
-    id: 1,
-    name: "PEPE",
-    price: "$0.0001",
-    change: "+420%",
-    isWinner: true,
-  },
-  {
-    id: 2,
-    name: "WOJAK",
-    price: "$0.00001",
-    change: "-69%",
-    isWinner: false,
-  },
-];
+export async function getCoinList(platform) {
+  try {
+    const response = await fetch(
+      "https://api.coingecko.com/api/v3/coins/list?include_platform=true",
+      {
+        headers: {
+          accept: "application/json",
+          "x-cg-api-key": process.env.NEXT_PUBLIC_CG_API_KEY,
+        },
+      }
+    );
 
-const LIQUIDITY_POOLS = [
-  {
-    id: 1,
-    pair: "PEPE/ETH",
-    tvl: "$1.2M",
-    apy: "42%",
-  },
-  {
-    id: 2,
-    pair: "WOJAK/ETH",
-    tvl: "$500K",
-    apy: "69%",
-  },
-];
+    if (!response.ok) throw new Error("Failed to fetch coin list");
+
+    const data = await response.json();
+    return data
+      .filter((coin) => coin.platforms && coin.platforms[platform])
+      .slice(0, 10);
+  } catch (error) {
+    console.error("Error fetching coin list:", error);
+    return [];
+  }
+}
+
+export async function getPoolsByNetwork(network) {
+  try {
+    const response = await fetch(
+      `https://api.geckoterminal.com/api/v2/networks/${network}/pools`,
+      {
+        headers: {
+          accept: "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) throw new Error("Failed to fetch pools");
+
+    const data = await response.json();
+    return data.data.slice(0, 10);
+  } catch (error) {
+    console.error("Error fetching pools:", error);
+    return [];
+  }
+}
 
 function AppContent() {
   const [selectedPill, setSelectedPill] = useState(null);
   const searchParams = useSearchParams();
+  const [tokens, setTokens] = useState([]);
+  const [pools, setPools] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!selectedPill) return;
+
+      setIsLoading(true);
+      try {
+        // Get platform name based on selected pill
+        const platform =
+          selectedPill === "ethereum"
+            ? "eth"
+            : selectedPill === "base"
+            ? "base"
+            : "celo";
+
+        // Fetch coins and pools
+        const [coinList, poolList] = await Promise.all([
+          getCoinList(platform),
+          getPoolsByNetwork(selectedPill),
+        ]);
+
+        // Get token metadata for each coin
+        const tokenMetadata = await Promise.all(
+          coinList.map((coin) =>
+            getTokenContractMetadataByContracts(platform, coin.platforms[platform])
+          )
+        );
+
+        // Combine data
+        const enrichedTokens = coinList.map((coin, index) => ({
+          id: coin.id,
+          name: coin.name,
+          symbol: coin.symbol.toUpperCase(),
+          price: tokenMetadata[index]?.price || "0",
+          change: tokenMetadata[index]?.price_change_24h || "0",
+          isWinner: (tokenMetadata[index]?.price_change_24h || 0) > 0,
+        }));
+
+        setTokens(enrichedTokens);
+        setPools(poolList);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [selectedPill]);
 
   useEffect(() => {
     if (searchParams.get("reset") === "true") {
@@ -102,40 +167,57 @@ function AppContent() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Launched Tokens Section */}
-            <div className="bg-white/50 dark:bg-black/50 backdrop-blur-md rounded-2xl p-6 shadow-xl">
-              <h2 className="text-2xl font-bold mb-4">Launched Tokens</h2>
-              <div className="space-y-4">
-                {LAUNCHED_TOKENS.map((token) => (
+            <div className="space-y-4">
+              {isLoading ? (
+                <div className="flex items-center justify-center p-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+                </div>
+              ) : (
+                tokens.map((token) => (
                   <div
                     key={token.id}
                     className="flex justify-between items-center p-4 rounded-lg bg-white/30 dark:bg-black/30">
-                    <span className="font-bold">{token.name}</span>
-                    <span>{token.price}</span>
+                    <span className="font-bold">
+                      {token.name} ({token.symbol})
+                    </span>
+                    <span>${Number(token.price).toFixed(6)}</span>
                     <span
                       className={
                         token.isWinner ? "text-green-500" : "text-red-500"
                       }>
-                      {token.change}
+                      {token.change > 0 ? "+" : ""}
+                      {Number(token.change).toFixed(2)}%
                     </span>
                   </div>
-                ))}
-              </div>
+                ))
+              )}
             </div>
-
             {/* Liquidity Pools Section */}
-            <div className="bg-white/50 dark:bg-black/50 backdrop-blur-md rounded-2xl p-6 shadow-xl">
-              <h2 className="text-2xl font-bold mb-4">EZ Liquidity Pools</h2>
-              <div className="space-y-4">
-                {LIQUIDITY_POOLS.map((pool) => (
+            <div className="space-y-4">
+              {isLoading ? (
+                <div className="flex items-center justify-center p-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+                </div>
+              ) : (
+                pools.map((pool) => (
                   <div
                     key={pool.id}
                     className="flex justify-between items-center p-4 rounded-lg bg-white/30 dark:bg-black/30">
-                    <span className="font-bold">{pool.pair}</span>
-                    <span>TVL: {pool.tvl}</span>
-                    <span className="text-green-500">APY: {pool.apy}</span>
+                    <span className="font-bold">{pool.attributes.name}</span>
+                    <span>
+                      TVL: $
+                      {Number(pool.attributes.reserve_in_usd).toLocaleString()}
+                    </span>
+                    <span className="text-green-500">
+                      24h:{" "}
+                      {Number(
+                        pool.attributes.price_change_percentage?.["24h"] || 0
+                      ).toFixed(2)}
+                      %
+                    </span>
                   </div>
-                ))}
-              </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -163,13 +245,13 @@ function AppContent() {
                 🏆 Winners
               </h2>
               <div className="space-y-2">
-                {LAUNCHED_TOKENS.filter((t) => t.isWinner).map((token) => (
+                {/* {LAUNCHED_TOKENS.filter((t) => t.isWinner).map((token) => (
                   <div
                     key={token.id}
                     className="p-4 rounded-lg bg-white/30 dark:bg-black/30">
                     {token.name} ({token.change})
                   </div>
-                ))}
+                ))} */}
               </div>
             </div>
 
@@ -178,13 +260,13 @@ function AppContent() {
                 💀 Losers
               </h2>
               <div className="space-y-2">
-                {LAUNCHED_TOKENS.filter((t) => !t.isWinner).map((token) => (
+                {/* {LAUNCHED_TOKENS.filter((t) => !t.isWinner).map((token) => (
                   <div
                     key={token.id}
                     className="p-4 rounded-lg bg-white/30 dark:bg-black/30">
                     {token.name} ({token.change})
                   </div>
-                ))}
+                ))} */}
               </div>
             </div>
           </div>
@@ -194,19 +276,17 @@ function AppContent() {
   );
 }
 
-
 export default function AppPage() {
-    return (
-      <Suspense 
-        fallback={
-          <div className="fixed inset-0 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        }
-      >
-        <AnimatePresence>
-          <AppContent />
-        </AnimatePresence>
-      </Suspense>
-    );
-  }
+  return (
+    <Suspense
+      fallback={
+        <div className="fixed inset-0 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      }>
+      <AnimatePresence>
+        <AppContent />
+      </AnimatePresence>
+    </Suspense>
+  );
+}

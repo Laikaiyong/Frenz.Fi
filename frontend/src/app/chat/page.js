@@ -17,7 +17,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef(null);
   const [tokenOwned, setTokenOwned] = useState();
-  const [response, setResponse] = useState();
+  const [transformedTokens, setTransformedTokens] = useState();
   const [selectedNetwork, setSelectedNetwork] = useState()
   
   useEffect(() => {
@@ -43,26 +43,13 @@ export default function ChatPage() {
   }, [authenticated, user?.wallet?.address, selectedNetwork]);
 
   useEffect(() => {
-    async function provideAiWithTokenInfo(transformedTokens) {
-      if(transformedTokens){
-        const response = await getGroqChatCompletion(transformedTokens+". This is the token profile that I have. Please remember this.");
-
-        setResponse(response)
-      }
-    }
-
     if (tokenOwned) {
-      const transformedTokens = tokenOwned.items.map(token => ({
-        name: token.contract.name,
-        totalSupply: token.contract.totalSupply,
-        balance: token.balance,
-      }));
-      provideAiWithTokenInfo(transformedTokens) 
-      
+      const transformedTokens = tokenOwned.items.map(token => 
+      `Name: ${token.contract.name}, Total Supply: ${token.contract.totalSupply}, Balance: ${token.balance}`
+      ).join("; ");
+      setTransformedTokens(transformedTokens) 
     }
   }, [tokenOwned]);
-
-  console.log(response)
 
   // Mock data for token and insurance info
   const relevantInfo = {
@@ -94,22 +81,32 @@ export default function ChatPage() {
 
     const userMessage = {
       type: "user",
-      content: input,
+      content: input.trim(), // Ensure content is a non-empty string
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
 
-    const response = await getGroqChatCompletion(input);
+    try {
+      const response = await getGroqChatCompletion([...messages, userMessage]); // Ensure messages include the new user message
 
-    const aiMessage = {
-      type: "ai",
-      content: response,
-    };
+      const aiMessage = {
+        type: "ai",
+        content: response || "I'm sorry, I couldn't process that.", // Ensure AI response is a valid string
+      };
 
-    setIsLoading(false);
-    setMessages((prev) => [...prev, aiMessage]);
+      setMessages((prev) => [...prev, aiMessage]);
+    } catch (error) {
+      console.error("Error fetching AI response:", error);
+      const errorMessage = {
+        type: "ai",
+        content: "An error occurred while processing your request.",
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

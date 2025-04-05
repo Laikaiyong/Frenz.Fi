@@ -5,11 +5,11 @@
  * @returns {Promise<Object>} A promise that resolves to the response object containing the protocols' current values.
  * @throws {Error} Throws an error if the HTTP request fails or the response is not ok.
  */
-export default async function getNftContractMetadataByContracts(contractAddresses) {
+export default async function getNftContractMetadataByContracts(network, contractAddresses) {
     // Ensure dotenv is configured correctly
 
     try {
-        const response = await fetch("https://web3.nodit.io/v1/base/mainnet/token/getTokenContractMetadataByContracts", {
+        const response = await fetch(`https://web3.nodit.io/v1/${network}/mainnet/token/getTokenContractMetadataByContract`, {
             method: "POST",
             headers: {
                 accept: 'application/json',

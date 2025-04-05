@@ -102,8 +102,11 @@ export default function TokenDetailPage() {
         const tokenHolders = await getTokenHoldersByContract(id);
         // const tokenPrices = await useGetTokenPricesByContracts(id);
         const tokenTransfers = await getTokenTransfersByContract(id);
-        const tokenMetadata = await getTokenContractMetadataByContracts(id);
+        const tokenMetadata = await getTokenContractMetadataByContracts(selectedNetwork, id);
 
+        console.log("tokenHolders", tokenHolders);
+        console.log("tokenTransfers", tokenTransfers);
+        console.log("tokenMetadata", tokenMetadata);
         setTokenHolders(tokenHolders);
         // setTokenPrices(tokenPrices);
         setTokenTransfers(tokenTransfers);
@@ -116,9 +119,6 @@ export default function TokenDetailPage() {
     fetchTokenData();
   }, []);
 
-  console.log("tokenHolders", tokenHolders);
-  console.log("tokenTransfers", tokenTransfers);
-  console.log("tokenMetadata", tokenMetadata);
 
   // Mock token data
   const tokenData = {

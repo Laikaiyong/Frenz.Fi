@@ -8,7 +8,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import getGroqChatCompletion from "../api/groq/getGroqChatCompletion";
-import useGetTokensOwnedByAccount from "../../utils/nodit/token/useGetTokensOwnedByAccount";
+import getTokensOwnedByAccount from "../../utils/nodit/token/useGetTokensOwnedByAccount";
 
 export default function ChatPage() {
   const { authenticated, user } = usePrivy();
@@ -26,7 +26,7 @@ export default function ChatPage() {
 
   const fetchTokenData = async () => {
     try {
-      const tokenOwned = await useGetTokensOwnedByAccount(selectedNetwork,
+      const tokenOwned = await getTokensOwnedByAccount(selectedNetwork,
         '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045');
 
       setTokenOwned(tokenOwned);
@@ -41,9 +41,10 @@ export default function ChatPage() {
     }
   }, [authenticated, user?.wallet?.address, selectedNetwork]);
 
-  
-
-  console.log(tokenOwned)
+  useEffect(()=>{
+    
+    
+  }),[tokenOwned]
 
   // Mock data for token and insurance info
   const relevantInfo = {

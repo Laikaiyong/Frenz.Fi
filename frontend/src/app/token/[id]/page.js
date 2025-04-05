@@ -12,10 +12,10 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { usePrivy } from "@privy-io/react-auth";
-import useGetTokenHoldersByContract from "@/utils/nodit/token/useGetTokenHoldersByContract";
+import getTokenHoldersByContract from "@/utils/nodit/token/useGetTokenHoldersByContract";
 // import useGetTokenPricesByContracts from "@/app/api/nodit/token/useGetTokenPricesByContracts";
-import useGetTokenTransfersByContract from "@/utils/nodit/token/useGetTokenTransfersByContract";
-import useGetTokenContractMetadataByContracts from "@/utils/nodit/token/useGetTokenContractMetadataByContracts";
+import getTokenTransfersByContract from "@/utils/nodit/token/useGetTokenTransfersByContract";
+import getTokenContractMetadataByContracts from "@/utils/nodit/token/useGetTokenContractMetadataByContracts";
 
 export default function TokenDetailPage() {
   const { id } = useParams();
@@ -99,10 +99,10 @@ export default function TokenDetailPage() {
   useEffect(() => {
     const fetchTokenData = async () => {
       try {
-        const tokenHolders = await useGetTokenHoldersByContract(id);
+        const tokenHolders = await getTokenHoldersByContract(id);
         // const tokenPrices = await useGetTokenPricesByContracts(id);
-        const tokenTransfers = await useGetTokenTransfersByContract(id);
-        const tokenMetadata = await useGetTokenContractMetadataByContracts(id);
+        const tokenTransfers = await getTokenTransfersByContract(id);
+        const tokenMetadata = await getTokenContractMetadataByContracts(id);
 
         setTokenHolders(tokenHolders);
         // setTokenPrices(tokenPrices);

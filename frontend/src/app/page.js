@@ -4,6 +4,8 @@ import Image from "next/image";
 import Navbar from "../components/navbar";
 import FloatingToken from "../components/floatingToken";
 import ScreamEmoji from "../components/screamEmoji";
+import AnimatedBackground from "@/components/animatedBackground";
+const { useEffect } = require("react");
 
 const FLOATING_TOKENS = [
   "https://payload-marketing.moonpay.com/api/media/file/base%20logo.webp",
@@ -12,10 +14,12 @@ const FLOATING_TOKENS = [
 ];
 
 export default function Home() {
+
+  useEffect(() => {
+    localStorage.clear();
+  }, []);
   return (
     <>
-      <Navbar />
-
       {/* Floating Tokens */}
       <div className="fixed inset-0 pointer-events-none">
         {FLOATING_TOKENS.map((token, index) => (
@@ -38,12 +42,11 @@ export default function Home() {
           </div>
 
           <div className="flex gap-4 items-center justify-center flex-col sm:flex-row mt-8">
-            <button className="rounded-full bg-gradient-to-r from-[#00EF8B] to-[#0052FF] px-8 py-3 text-white font-bold hover:opacity-90 transition-all transform hover:scale-105">
-              Launch App
-            </button>
-            <button className="rounded-full border-2 border-[#FBCC5C] px-8 py-3 font-bold hover:bg-[#FBCC5C] hover:text-white transition-all">
-              Learn More
-            </button>
+            <a href="/app">
+              <button className="rounded-full bg-gradient-to-r from-[#00EF8B] to-[#0052FF] px-8 py-3 text-white font-bold hover:opacity-90 transition-all transform hover:scale-105">
+                Launch App
+              </button>
+            </a>
           </div>
         </main>
 

@@ -17,6 +17,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef(null);
   const [tokenOwned, setTokenOwned] = useState();
+  const [transformedTokens, setTransformedTokens] = useState();
   const [selectedNetwork, setSelectedNetwork] = useState()
   
   useEffect(() => {
@@ -41,10 +42,16 @@ export default function ChatPage() {
     }
   }, [authenticated, user?.wallet?.address, selectedNetwork]);
 
-  useEffect(()=>{
-    
-    
-  }),[tokenOwned]
+  useEffect(() => {
+    if (tokenOwned) {
+      const transformedTokens = tokenOwned.items.map(token => ({
+        name: token.contract.name,
+        totalSupply: token.contract.totalSupply,
+        balance: token.balance,
+      }));
+      setTransformedTokens(transformedTokens);
+    }
+  }, [tokenOwned]);
 
   // Mock data for token and insurance info
   const relevantInfo = {
@@ -76,7 +83,7 @@ export default function ChatPage() {
 
     const userMessage = {
       type: "user",
-      content: input,
+      content: transformedTokens+". B"+input,
     };
 
     setMessages((prev) => [...prev, userMessage]);

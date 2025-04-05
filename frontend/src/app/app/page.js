@@ -9,7 +9,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import PillsScreen from "@/components/pillsScreen";
 
@@ -51,14 +51,12 @@ export default function AppPage() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Check for reset parameter
     if (searchParams.get("reset") === "true") {
       localStorage.removeItem("selectedPill");
       setSelectedPill(null);
       return;
     }
 
-    // Check localStorage for existing selection
     const storedPill = localStorage.getItem("selectedPill");
     if (storedPill) {
       setSelectedPill(storedPill);
@@ -72,6 +70,11 @@ export default function AppPage() {
   };
 
   return (
+    <Suspense fallback={
+        <div className="fixed inset-0 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      }>
     <AnimatePresence>
       {!selectedPill ? (
         <motion.div
@@ -193,5 +196,6 @@ export default function AppPage() {
         </motion.div>
       )}
     </AnimatePresence>
+    </Suspense>
   );
 }

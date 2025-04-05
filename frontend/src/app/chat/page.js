@@ -4,15 +4,36 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { usePrivy } from "@privy-io/react-auth";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import getGroqChatCompletion from "../api/groq/getGroqChatCompletion";
+import useGetTokensOwnedByAccount from "../../utils/nodit/token/useGetTokensOwnedByAccount";
 
 export default function ChatPage() {
+  const { authenticated, user } = usePrivy();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef(null);
+  const [tokenOwned, setTokenOwned] = useState();
+  
+
+  useEffect(() => {
+    const fetchTokenData = async () => {
+      try {
+        const tokenOwned = await useGetTokensOwnedByAccount(user);
+
+        setTokenOwned(tokenOwned);
+      } catch (error) {
+        console.error("Error fetching token data:", error);
+      }
+    };
+
+    fetchTokenData();
+  }, []);
+
+  console.log(tokenOwned)
 
   // Mock data for token and insurance info
   const relevantInfo = {

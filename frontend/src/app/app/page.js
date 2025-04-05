@@ -47,7 +47,6 @@ const LIQUIDITY_POOLS = [
 ];
 
 export default function AppPage() {
-
   const [selectedPill, setSelectedPill] = useState(null);
   const searchParams = useSearchParams();
 
@@ -69,7 +68,7 @@ export default function AppPage() {
   const handlePillSelection = (color) => {
     setSelectedPill(color);
     localStorage.setItem("selectedPill", color);
-    window.location.href = '/app';
+    window.location.href = "/app";
   };
 
   return (
@@ -150,10 +149,10 @@ export default function AppPage() {
                 🤖
               </div>
               <div>
-                <p className="font-medium">Today's Advice</p>
+                <p className="font-medium">Today&apos;s Advice</p>
                 <p className="text-gray-600 dark:text-gray-400">
-                  "Market sentiment is bullish! Consider providing liquidity to
-                  PEPE/ETH pool for optimal yields."
+                  &ldquo;Market sentiment is bullish! Consider providing
+                  liquidity to PEPE/ETH pool for optimal yields.&ldquo;
                 </p>
               </div>
             </div>

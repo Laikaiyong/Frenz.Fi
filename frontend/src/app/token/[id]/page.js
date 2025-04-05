@@ -12,10 +12,10 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { usePrivy } from "@privy-io/react-auth";
-import useGetTokenHoldersByContract from "@/app/api/nodit/token/useGetTokenHoldersByContract";
-import useGetTokenPricesByContracts from "@/app/api/nodit/token/useGetTokenPricesByContracts";
-import useGetTokenTransfersByContract from "@/app/api/nodit/token/useGetTokenTransfersByContract";
-import useGetTokenContractMetadataByContracts from "@/app/api/nodit/token/useGetTokenContractMetadataByContracts";
+import useGetTokenHoldersByContract from "@/utils/nodit/token/useGetTokenHoldersByContract";
+// import useGetTokenPricesByContracts from "@/app/api/nodit/token/useGetTokenPricesByContracts";
+import useGetTokenTransfersByContract from "@/utils/nodit/token/useGetTokenTransfersByContract";
+import useGetTokenContractMetadataByContracts from "@/utils/nodit/token/useGetTokenContractMetadataByContracts";
 
 export default function TokenDetailPage() {
   const { id } = useParams();
@@ -24,16 +24,24 @@ export default function TokenDetailPage() {
   const [sentiment, setSentiment] = useState({ bullish: 60, bearish: 40 });
   const [activeTab, setActiveTab] = useState("overview");
   const [tokenHolders, setTokenHolders] = useState();
-  const [tokenPrices, setTokenPrices] = useState();
+  const [tokenPrice, setTokenPrice] = useState();
   const [tokenTransfers, setTokenTransfers] = useState();
   const [tokenMetadata, setTokenMetadata] = useState();
 
   const [poolData, setPoolData] = useState(null);
   const [selectedNetwork, setSelectedNetwork] = useState(null);
+  const [tokenStats, setTokenStats] = useState({
+    price: "0.00",
+    priceChange24h: "0.00",
+    marketCap: "0",
+    volume24h: "0",
+    liquidity: "0",
+    lockedLiquidity: "0",
+  });
 
   // Add this useEffect to get the network from localStorage
   useEffect(() => {
-   let network = localStorage.getItem("selectedPill");
+    let network = localStorage.getItem("selectedPill");
     network = network == "ethereum" ? "eth" : network;
     setSelectedNetwork(network);
   }, []);
@@ -58,7 +66,24 @@ export default function TokenDetailPage() {
 
         const data = await response.json();
         if (data.data && data.data.length > 0) {
+          const poolInfo = data.data[0].attributes;
           setPoolData(data.data[0]);
+
+          // Update token stats with real data
+          setTokenStats({
+            price: Number(poolInfo.base_token_price_usd).toFixed(6),
+            priceChange24h: Number(
+              poolInfo.price_change_percentage?.["24h"] || 0
+            ).toFixed(2),
+            marketCap: Number(poolInfo.market_cap_usd || 0).toLocaleString(),
+            volume24h: Number(
+              poolInfo.volume_usd?.["24h"] || 0
+            ).toLocaleString(),
+            liquidity: Number(poolInfo.reserve_in_usd || 0).toLocaleString(),
+            lockedLiquidity: Number(
+              poolInfo.locked_liquidity_percentage || 0
+            ).toFixed(2),
+          });
         }
       } catch (error) {
         console.error("Error fetching pool data:", error);
@@ -66,20 +91,21 @@ export default function TokenDetailPage() {
     };
 
     fetchPoolData();
+    // Set up polling every 30 seconds
+    const interval = setInterval(fetchPoolData, 30000);
+    return () => clearInterval(interval);
   }, [id, selectedNetwork]);
 
   useEffect(() => {
     const fetchTokenData = async () => {
       try {
-        const tokenHolders = await useGetTokenHoldersByContract(
-          "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-        );
-        const tokenPrices = await useGetTokenPricesByContracts(id);
+        const tokenHolders = await useGetTokenHoldersByContract(id);
+        // const tokenPrices = await useGetTokenPricesByContracts(id);
         const tokenTransfers = await useGetTokenTransfersByContract(id);
         const tokenMetadata = await useGetTokenContractMetadataByContracts(id);
 
         setTokenHolders(tokenHolders);
-        setTokenPrices(tokenPrices);
+        // setTokenPrices(tokenPrices);
         setTokenTransfers(tokenTransfers);
         setTokenMetadata(tokenMetadata);
       } catch (error) {
@@ -90,10 +116,9 @@ export default function TokenDetailPage() {
     fetchTokenData();
   }, []);
 
-  console.log(tokenHolders);
-  console.log(tokenPrices);
-  console.log(tokenTransfers);
-  console.log(tokenMetadata);
+  console.log("tokenHolders", tokenHolders);
+  console.log("tokenTransfers", tokenTransfers);
+  console.log("tokenMetadata", tokenMetadata);
 
   // Mock token data
   const tokenData = {
@@ -135,7 +160,22 @@ export default function TokenDetailPage() {
               </span>
             </h1>
             <div className="flex items-center gap-4">
-              <span className="text-4xl font-bold">{tokenData.price}</span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4">
+                  <span className="text-4xl font-bold">
+                    ${tokenStats.price}
+                  </span>
+                  <span
+                    className={`text-lg ${
+                      Number(tokenStats.priceChange24h) >= 0
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}>
+                    {Number(tokenStats.priceChange24h) > 0 ? "+" : ""}
+                    {tokenStats.priceChange24h}%
+                  </span>
+                </div>
+              </div>
               <span
                 className={`text-lg ${
                   tokenData.priceChange.startsWith("+")
@@ -187,19 +227,19 @@ export default function TokenDetailPage() {
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span className="text-gray-600">Market Cap</span>
-                <span className="font-bold">{tokenData.marketCap}</span>
+                <span className="font-bold">${tokenStats.marketCap}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">24h Volume</span>
-                <span className="font-bold">{tokenData.volume}</span>
+                <span className="font-bold">${tokenStats.volume24h}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Liquidity</span>
-                <span className="font-bold">{tokenData.liquidity}</span>
+                <span className="font-bold">${tokenStats.liquidity}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Holders</span>
-                <span className="font-bold">{tokenData.holders}</span>
+                <span className="text-gray-600">Locked Liquidity</span>
+                <span className="font-bold">{tokenStats.lockedLiquidity}%</span>
               </div>
             </div>
           </div>
@@ -267,48 +307,50 @@ export default function TokenDetailPage() {
                     <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
                       <p className="text-sm text-gray-500">Pool Liquidity</p>
                       <p className="text-lg font-bold">
-                        $
-                        {Number(
-                          poolData.attributes.reserve_in_usd
-                        ).toLocaleString()}
+                        ${tokenStats.liquidity}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {tokenStats.lockedLiquidity}% Locked
                       </p>
                     </div>
                     <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
                       <p className="text-sm text-gray-500">24h Volume</p>
                       <p className="text-lg font-bold">
-                        $
+                        ${tokenStats.volume24h}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Price: $
                         {Number(
-                          poolData.attributes.volume_usd?.["24h"] || 0
-                        ).toLocaleString()}
+                          poolData.attributes.base_token_price_quote_token
+                        ).toFixed(6)}
                       </p>
                     </div>
                     <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
                       <p className="text-sm text-gray-500">Market Cap</p>
                       <p className="text-lg font-bold">
-                        $
-                        {Number(
-                          poolData.attributes.market_cap_usd || 0
-                        ).toLocaleString()}
+                        ${tokenStats.marketCap}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        FDV: $
+                        {Number(poolData.attributes.fdv_usd).toLocaleString()}
                       </p>
                     </div>
                     <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
                       <p className="text-sm text-gray-500">Price Change 24h</p>
                       <p
                         className={`text-lg font-bold ${
-                          Number(
-                            poolData.attributes.price_change_percentage?.[
-                              "24h"
-                            ] || 0
-                          ) >= 0
+                          Number(tokenStats.priceChange24h) >= 0
                             ? "text-green-500"
                             : "text-red-500"
                         }`}>
-                        {Number(
-                          poolData.attributes.price_change_percentage?.[
-                            "24h"
-                          ] || 0
-                        ).toFixed(2)}
-                        %
+                        {Number(tokenStats.priceChange24h) > 0 ? "+" : ""}
+                        {tokenStats.priceChange24h}%
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Created:{" "}
+                        {new Date(
+                          poolData.attributes.pool_created_at
+                        ).toLocaleDateString()}
                       </p>
                     </div>
                   </div>

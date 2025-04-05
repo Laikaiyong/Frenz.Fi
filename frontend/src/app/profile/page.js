@@ -7,7 +7,7 @@
 import { useState, useEffect } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { motion } from "framer-motion";
-import useGetTokensOwnedByAccount from "../api/nodit/token/useGetTokensOwnedByAccount";
+import useGetTokensOwnedByAccount from "../../utils/nodit/token/useGetTokensOwnedByAccount";
 import Link from "next/link";
 
 const DEFAULT_TOKEN_LOGO =

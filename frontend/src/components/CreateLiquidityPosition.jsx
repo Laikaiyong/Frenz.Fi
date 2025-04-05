@@ -100,8 +100,8 @@ export default function CreateLiquidityPosition() {
       const token1 = new ethers.Contract(selectedPool.currency1, erc20Abi, signer);
       
       // Convert amounts to wei with proper decimals
-      const amount0Wei = ethers.utils.parseUnits(amount0, selectedPool.token0Decimals);
-      const amount1Wei = ethers.utils.parseUnits(amount1, selectedPool.token1Decimals);
+      const amount0Wei = ethers.parseUnits(amount0, selectedPool.token0Decimals);
+      const amount1Wei = ethers.parseUnits(amount1, selectedPool.token1Decimals);
       
       // Approve tokens to position manager
       setSuccess('Approving tokens...');
@@ -211,7 +211,45 @@ export default function CreateLiquidityPosition() {
                 </select>
               </div>
 
-              {/* Continue with the rest of your form fields using similar styling */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Lower Tick</label>
+                <input
+                  type="number"
+                  value={tickLower}
+                  onChange={(e) => setTickLower(parseInt(e.target.value))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Upper Tick</label>
+                <input
+                  type="number"
+                  value={tickUpper}
+                  onChange={(e) => setTickUpper(parseInt(e.target.value))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Amount Token 0</label>
+                <input
+                  type="text"
+                  value={amount0}
+                  onChange={(e) => setAmount0(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Amount Token 1</label>
+                <input
+                  type="text"
+                  value={amount1}
+                  onChange={(e) => setAmount1(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
               
               <button
                 onClick={createPosition}

@@ -50,7 +50,7 @@ function formatPoolKey(currency0, currency1, fee, tickSpacing) {
 
 // Calculate pool ID from pool key (simplified version - actual calculation may vary)
 function getPoolId(currency0, currency1, fee, tickSpacing) {
-  return ethers.utils.solidityKeccak256(
+  return ethers.solidityKeccak256(
     ['address', 'address', 'uint24', 'int24', 'address'],
     [currency0, currency1, parseInt(fee), parseInt(tickSpacing), HOOK_ADDRESS]
   );
@@ -103,7 +103,7 @@ export async function GET(request) {
         
         return NextResponse.json({ 
           volume: totalVolume.toString(),
-          formattedVolume: ethers.utils.formatEther(totalVolume)
+          formattedVolume: ethers.formatEther(totalVolume)
         });
       }
       
@@ -157,7 +157,7 @@ export async function GET(request) {
             lastSqrtPriceX96: poolData.lastSqrtPriceX96.toString(),
             lastTimestamp: poolData.lastTimestamp.toString(),
             volume: poolData.volume.toString(),
-            formattedVolume: ethers.utils.formatEther(poolData.volume),
+            formattedVolume: ethers.formatEther(poolData.volume),
             currentFee: poolData.currentFee,
             formattedCurrentFee: formatFeePercentage(poolData.currentFee),
             blockLastFeeChange: poolData.blockLastFeeChange.toString(),

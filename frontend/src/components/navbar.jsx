@@ -124,7 +124,7 @@ export default function Navbar() {
         // Celo Alfajores L2 Testnet
         params = {
           chainId: '0xaeef', // 44787 in hex
-          chainName: 'Celo Alfajores L2 Testnet',
+          chainName: 'Celo Alfajores',
           nativeCurrency: {
             name: 'CELO',
             symbol: 'CELO',
@@ -181,7 +181,7 @@ export default function Navbar() {
       color: "#0052FF",
     },
     celo: {
-      name: "Celo Alfajores L2",
+      name: "Celo Alfajores",
       icon: "https://celo.org/favicon.ico",
       color: "#FBCC5C",
     },

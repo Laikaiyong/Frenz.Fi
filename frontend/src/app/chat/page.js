@@ -4,15 +4,63 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { usePrivy } from "@privy-io/react-auth";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import getGroqChatCompletion from "../api/groq/getGroqChatCompletion";
+import getTokensOwnedByAccount from "../../utils/nodit/token/useGetTokensOwnedByAccount";
 
 export default function ChatPage() {
+  const { authenticated, user } = usePrivy();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef(null);
+  const [tokenOwned, setTokenOwned] = useState();
+  const [transformedTokens, setTransformedTokens] = useState();
+  const [selectedNetwork, setSelectedNetwork] = useState()
+  
+  useEffect(() => {
+    const network = localStorage.getItem("selectedPill");
+    setSelectedNetwork(network);
+  }, []);
+
+  const fetchTokenData = async () => {
+    try {
+      const tokenOwned = await getTokensOwnedByAccount(selectedNetwork,
+        '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045');
+
+      setTokenOwned(tokenOwned);
+    } catch (error) {
+      console.error("Error fetching token data:", error);
+    }
+  };
+
+  async function providePortfolioData(){
+    
+  }
+
+  useEffect(() => {
+    if (authenticated && user?.wallet?.address && selectedNetwork) {
+      fetchTokenData();
+    }
+  }, [authenticated, user?.wallet?.address, selectedNetwork]);
+
+  useEffect(() => {
+    if (tokenOwned) {
+      const transformedTokens = tokenOwned.items.map(token => 
+      `Name: ${token.contract.name}, Total Supply: ${token.contract.totalSupply}, Balance: ${token.balance}`
+      ).join("; ");
+      setTransformedTokens(transformedTokens) 
+    }
+  }, [tokenOwned]);
+
+  useEffect(() => {
+    if (transformedTokens) {
+      
+      
+    }
+  }, [transformedTokens]);
 
   // Mock data for token and insurance info
   const relevantInfo = {
@@ -43,23 +91,23 @@ export default function ChatPage() {
     if (!input.trim()) return;
 
     const userMessage = {
-      type: "user",
-      content: input,
+      role: "user",
+      content: input.trim(), // Ensure content is a non-empty string
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
 
-    const response = await getGroqChatCompletion(input);
+    const response = await getGroqChatCompletion([...messages, userMessage]); // Ensure messages include the new user message
 
     const aiMessage = {
-      type: "ai",
-      content: response,
+      role: "assistant",
+      content: response || "I'm sorry, I couldn't process that.", // Ensure AI response is a valid string
     };
 
-    setIsLoading(false);
     setMessages((prev) => [...prev, aiMessage]);
+    setIsLoading(false);
   };
 
   return (
@@ -80,12 +128,12 @@ export default function ChatPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className={`flex ${
-                    message.type === "user" ? "justify-end" : "justify-start"
+                    message.role === "user" ? "justify-end" : "justify-start"
                   }`}
                 >
                   <div
                     className={`max-w-[70%] p-4 rounded-lg ${
-                      message.type === "user"
+                      message.role === "user"
                         ? "bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white"
                         : "bg-gray-100"
                     }`}

@@ -7,7 +7,7 @@
 import { useState, useEffect } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { motion } from "framer-motion";
-import useGetTokensOwnedByAccount from "../api/nodit/token/useGetTokensOwnedByAccount";
+import getTokensOwnedByAccount from "../../utils/nodit/token/useGetTokensOwnedByAccount";
 import Link from "next/link";
 
 const DEFAULT_TOKEN_LOGO =
@@ -33,7 +33,7 @@ export default function ProfilePage() {
 
     try {
       setIsLoading(true);
-      const tokenHoldings = await useGetTokensOwnedByAccount(
+      const tokenHoldings = await getTokensOwnedByAccount(
         selectedNetwork,
         user.wallet.address
       );

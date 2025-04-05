@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
  * 
  * @returns {Array<json>} An array of different holders of the token
  */
-export default async function useGetAllHoldersOfToken(tokenAddress) {
+export default async function getAllHoldersOfToken(tokenAddress) {
     const response = await fetch(`https://api.metal.build/token/${tokenAddress}`, {
         headers: {
             'x-api-key': process.env.METAL_SECRET_API,

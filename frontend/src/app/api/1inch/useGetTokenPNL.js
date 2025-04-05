@@ -10,7 +10,7 @@ dotenv.config();
  * @returns {Promise<Object>} A promise that resolves to the response object containing the protocols' current values.
  * @throws {Error} Throws an error if the HTTP request fails or the response is not ok.
  */
-export default async function useGetTokenPNL(tokenAddress, timeRange, chainId, useCache) {
+export default async function getTokenPNL(tokenAddress, timeRange, chainId, useCache) {
 
     try {
         const response = await fetch("https://api.1inch.dev/portfolio/portfolio/v4/overview/erc20/profit_and_loss", {

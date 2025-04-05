@@ -1,32 +1,24 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 /**
  * Fetches the current value of a protocol from the 1inch API.
- * @param {Array<string>} contractAddresses - An array of contract addresses to fetch the metadata of NFT contracts.
+ * @param {string} contractAddress - An array of contract addresses to fetch the metadata of NFT contracts.
  * 
  * @returns {Promise<Object>} A promise that resolves to the response object containing the protocols' current values.
  * @throws {Error} Throws an error if the HTTP request fails or the response is not ok.
  */
-export default async function useGetTokenTransfersByAccount(contractAddress, fromBlock = null, toBlock = null, fromDate = null, toDate = null, page = null, rpp = null, cursor = null, withCount = false, withZeroValue = false) {
+export default async function getTokenHoldersByContract(contractAddress, page = null, rpp = null, cursor = null, withCount = false) {
     // Ensure dotenv is configured correctly
 
     const body = {
         contractAddress: contractAddress,
-        withCount: withCount,
-        withZeroValue: withZeroValue
+        withCount: withCount
     };
 
-    if (fromBlock) body.fromBlock = fromBlock;
-    if (toBlock) body.toBlock = toBlock;
-    if (fromDate) body.fromDate = fromDate;
-    if (toDate) body.toDate = toDate;
     if (page) body.page = page;
     if (rpp) body.rpp = rpp;
     if (cursor) body.cursor = cursor;
 
     try {
-        const response = await fetch("https://web3.nodit.io/v1/base/mainnet/token/getTokenTransfersByAccount", {
+        const response = await fetch("https://web3.nodit.io/v1/base/mainnet/token/getTokenHoldersByContract", {
             method: "POST",
             headers: {
                 accept: 'application/json',
@@ -41,6 +33,8 @@ export default async function useGetTokenTransfersByAccount(contractAddress, fro
         }
 
         const data = await response.json();
+
+        console.log(data)
 
         return data;
     } catch (error) {

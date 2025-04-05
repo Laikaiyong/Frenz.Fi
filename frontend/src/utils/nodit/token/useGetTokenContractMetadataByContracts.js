@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 /**
  * Fetches the current value of a protocol from the 1inch API.
  * @param {Array<string>} contractAddresses - An array of contract addresses to fetch the metadata of NFT contracts.
@@ -8,27 +5,20 @@ dotenv.config();
  * @returns {Promise<Object>} A promise that resolves to the response object containing the protocols' current values.
  * @throws {Error} Throws an error if the HTTP request fails or the response is not ok.
  */
-export default async function useGetTokenPricesByContracts(contractAddresses, page = null, rpp = null, cursor = null, withCount = false) {
+export default async function getNftContractMetadataByContracts(network, contractAddresses) {
     // Ensure dotenv is configured correctly
 
-    const body = {
-        contractAddresses: contractAddresses,
-        withCount: withCount
-    };
-
-    if (page) body.page = page;
-    if (rpp) body.rpp = rpp;
-    if (cursor) body.cursor = cursor;
-
     try {
-        const response = await fetch("https://web3.nodit.io/v1/base/mainnet/token/getTokenPricesByContracts", {
+        const response = await fetch(`https://web3.nodit.io/v1/${network}/mainnet/token/getTokenContractMetadataByContract/`, {
             method: "POST",
             headers: {
                 accept: 'application/json',
                 'content-type': 'application/json',
                 'X-API-KEY': process.env.NEXT_PUBLIC_NODIT_API_KEY,
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify({
+                contractAddresses: [contractAddresses]
+            })
         });
 
         if (!response.ok) {

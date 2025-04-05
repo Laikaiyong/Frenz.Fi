@@ -3,6 +3,7 @@ dotenv.config();
 
 /**
  * Fetches the current value of a protocol from the 1inch API.
+ * @param {Array<string>} contractAddress - NFT transfers by account address.
  * @param {string} fromDate - The start date for the transfers. (eg: 2025-01-01T00:00:00+00:00)
  * @param {string} toDate - The end date for the transfers. (eg: 2025-01-01T00:00:00+00:00)
  * @param {boolean} withCount - Whether to include the count of transfers.
@@ -21,12 +22,13 @@ dotenv.config();
  * @returns {Promise<Object>} A promise that resolves to the response object containing the protocols' current values.
  * @throws {Error} Throws an error if the HTTP request fails or the response is not ok.
  */
-export default async function useGetNftTransfersWithinRange(fromBlock = null, toBlock = null, fromDate = null, toDate = null, page = null, rpp = null, cursor = null, withCount = false, withMetadata = false, withZeroValue = false) {
+export default async function getNftTransfersByContract(contractAddress, fromBlock = null, toBlock = null, fromDate = null, toDate = null, page = null, rpp = null, cursor = null, withCount = false, withMetadata = false, withZeroValue = false) {
 
     const body = {
+        contractAddress: contractAddress,
         withCount: withCount,
         withMetadata: withMetadata,
-        withZeroValue: withZeroValue,
+        withZeroValue: withZeroValue
     };
 
     if (fromBlock !== null) body.fromBlock = fromBlock;
@@ -38,7 +40,7 @@ export default async function useGetNftTransfersWithinRange(fromBlock = null, to
     if (cursor !== null) body.cursor = cursor;
 
     try {
-        const response = await fetch("https://web3.nodit.io/v1/base/mainnet/nft/getNftTransfersWithinRange", {
+        const response = await fetch("https://web3.nodit.io/v1/base/mainnet/nft/getNftTransfersByContract", {
             method: "POST",
             headers: {
                 accept: 'application/json',

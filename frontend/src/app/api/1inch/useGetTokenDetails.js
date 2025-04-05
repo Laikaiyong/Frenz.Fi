@@ -12,7 +12,7 @@ dotenv.config();
  * @returns {Promise<Object>} A promise that resolves to the response object containing the protocols' current values.
  * @throws {Error} Throws an error if the HTTP request fails or the response is not ok.
  */
-export default async function useGetTokenDetails(addresses, chainId, timerange, closed, closedThreshold, useCache) {
+export default async function getTokenDetails(addresses, chainId, timerange, closed, closedThreshold, useCache) {
 
     try {
         const response = await fetch("", {

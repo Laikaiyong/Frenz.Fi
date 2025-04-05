@@ -19,6 +19,21 @@ export default function CreateLiquidityPosition() {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState(null);
   const [hookInfo, setHookInfo] = useState(null);
+  const [network, setNetwork] = useState(null);
+
+  // Block explorer URLs for different networks
+  const explorerUrls = {
+    '0x2105': 'https://basescan.org', // Base Mainnet
+    '0xaeef': 'https://alfajores.celoscan.io', // Celo Testnet
+    '0xaa36a7': 'https://sepolia.etherscan.io' // Sepolia
+  };
+
+  // Network names mapping
+  const networkNames = {
+    '0x2105': 'Base Mainnet',
+    '0xaeef': 'Celo Alfajores L2',
+    '0xaa36a7': 'Sepolia Testnet'
+  };
 
   // On component mount
   useEffect(() => {
@@ -31,13 +46,17 @@ export default function CreateLiquidityPosition() {
     if (typeof window.ethereum !== 'undefined') {
       try {
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        
         if (accounts.length > 0) {
           setAccount(accounts[0]);
           setIsConnected(true);
+          setNetwork(chainId);
         }
         
         // Add listener for account changes
         window.ethereum.on('accountsChanged', handleAccountsChanged);
+        window.ethereum.on('chainChanged', handleChainChanged);
       } catch (error) {
         console.error("Error checking wallet connection:", error);
       }
@@ -55,13 +74,23 @@ export default function CreateLiquidityPosition() {
     }
   };
 
+  // Handle network changes
+  const handleChainChanged = (chainId) => {
+    setNetwork(chainId);
+    // Reload pool info when network changes
+    fetchPoolInfo();
+  };
+
   // Connect wallet function
   async function connectWallet() {
     if (typeof window.ethereum !== 'undefined') {
       try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        
         setAccount(accounts[0]);
         setIsConnected(true);
+        setNetwork(chainId);
       } catch (error) {
         console.error("Error connecting to MetaMask", error);
         setError("Failed to connect wallet: " + error.message);
@@ -71,10 +100,24 @@ export default function CreateLiquidityPosition() {
     }
   }
 
+  // Get network param based on current chainId
+  const getNetworkParam = () => {
+    if (!network) return 'base'; // Default to base
+    
+    if (network === '0x2105') return 'base';
+    if (network === '0xaeef') return 'celo';
+    if (network === '0xaa36a7') return 'sepolia';
+    
+    return 'base'; // Default fallback
+  };
+
   // Fetch available pools
   async function fetchPoolInfo() {
     try {
-      const response = await fetch('/api/uniswap?action=getHookInfo');
+      // Get the appropriate network parameter
+      const networkParam = getNetworkParam();
+      
+      const response = await fetch(`/api/uniswap?action=getHookInfo&network=${networkParam}`);
       if (!response.ok) {
         throw new Error(`API returned ${response.status}: ${response.statusText}`);
       }
@@ -100,6 +143,20 @@ export default function CreateLiquidityPosition() {
     return Math.pow(1.0001, tick);
   };
 
+  // Get block explorer URL based on current network
+  const getExplorerUrl = (txHash) => {
+    if (!network || !explorerUrls[network]) {
+      // Default to Base
+      return `https://basescan.org/tx/${txHash}`;
+    }
+    return `${explorerUrls[network]}/tx/${txHash}`;
+  };
+
+  // Get the current network name for display
+  const getCurrentNetworkName = () => {
+    return networkNames[network] || 'Unknown Network';
+  };
+
   // Create liquidity position
   const createPosition = async () => {
     if (!isConnected) {
@@ -115,6 +172,11 @@ export default function CreateLiquidityPosition() {
 
     if (!amount0 || !amount1) {
       setError('Please enter valid token amounts');
+      return;
+    }
+
+    if (!hookInfo) {
+      setError('Hook information not loaded');
       return;
     }
 
@@ -135,6 +197,16 @@ export default function CreateLiquidityPosition() {
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
+      
+      // Verify we're on a supported network
+      const currentNetwork = await provider.getNetwork();
+      const chainId = "0x" + currentNetwork.chainId.toString(16);
+      
+      // Check if we're on a supported network
+      const supportedNetworks = ['0x2105', '0xaeef', '0xaa36a7']; // Base, Celo, Sepolia
+      if (!supportedNetworks.includes(chainId)) {
+        throw new Error(`Please switch to a supported network (Base, Celo Alfajores or Sepolia). Current network: ${getCurrentNetworkName()}`);
+      }
 
       // Position Manager ABI (simplified)
       const positionManagerAbi = [
@@ -190,7 +262,7 @@ export default function CreateLiquidityPosition() {
 
       // Check if the transaction was successful
       if (receipt && receipt.status === 1) {
-        setSuccess(`Position created successfully!`);
+        setSuccess(`Position created successfully! <a href="${getExplorerUrl(tx.hash)}" target="_blank" class="text-blue-500 underline">View on Explorer</a>`);
       } else {
         throw new Error("Transaction failed");
       }
@@ -207,6 +279,11 @@ export default function CreateLiquidityPosition() {
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-2">Create Liquidity Position</h2>
         <p className="text-gray-600">Add liquidity to a pool with dynamic fees</p>
+        {network && (
+          <div className="mt-2 text-sm text-blue-600">
+            Connected to: {getCurrentNetworkName()}
+          </div>
+        )}
       </div>
       
       <div className="space-y-6">
@@ -220,7 +297,7 @@ export default function CreateLiquidityPosition() {
         {success && (
           <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4">
             <p className="font-bold">Status</p>
-            <p>{success}</p>
+            <p dangerouslySetInnerHTML={{ __html: success }}></p>
           </div>
         )}
         
@@ -250,6 +327,11 @@ export default function CreateLiquidityPosition() {
                   </option>
                 ))}
               </select>
+              {poolOptions.length === 0 && (
+                <p className="text-sm text-yellow-600">
+                  No pools available for the current network. Please switch to a supported network.
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

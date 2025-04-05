@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
  * 
  * @returns {json} - A json that contains the status of the creation
  */
-export default async function useCreateNewHolder(userId) {
+export default async function createNewHolder(userId) {
     const response = await fetch(`https://api.metal.build/holder/${userId}`, {
         method: 'PUT',
         headers: {

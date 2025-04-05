@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 /**
  * Fetches the current value of a protocol from the 1inch API.
  * @param {Array<string>} contractAddresses - An array of contract addresses to fetch the metadata of NFT contracts.
@@ -8,7 +5,7 @@ dotenv.config();
  * @returns {Promise<Object>} A promise that resolves to the response object containing the protocols' current values.
  * @throws {Error} Throws an error if the HTTP request fails or the response is not ok.
  */
-export default async function useGetTokensOwnedByAccount(network, accountAddress, contractAddresses = null, page = null, rpp = null, cursor = null, withCount = false) {
+export default async function getTokensOwnedByAccount(network, accountAddress, contractAddresses = null, page = null, rpp = null, cursor = null, withCount = false) {
     // Ensure dotenv is configured correctly
 
     const body = {

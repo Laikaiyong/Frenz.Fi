@@ -9,9 +9,8 @@ const { useEffect } = require("react");
 
 const FLOATING_TOKENS = [
   "https://payload-marketing.moonpay.com/api/media/file/base%20logo.webp",
-  "https://images.seeklogo.com/logo-png/40/2/ethereum-logo-png_seeklogo-407463.png",
-  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyejSxfv1VRb4-lAhpR2xyG-_-A1XH0n9riw&s",
-  "https://img.cryptorank.io/coins/unichain1728632895218.png",
+  "https://i.pinimg.com/564x/49/d1/0c/49d10cb0a3c978475a49f239e4e2f060.jpg",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyejSxfv1VRb4-lAhpR2xyG-_-A1XH0n9riw&s"
 ];
 
 export default function Home() {

@@ -11,7 +11,7 @@ dotenv.config();
  * @returns {Promise<Object>} A promise that resolves to the response object containing the protocols' current values.
  * @throws {Error} Throws an error if the HTTP request fails or the response is not ok.
  */
-export default async function useGetGeneralCurrentValue(addresses, chainId, timeRange, useCache) {
+export default async function getGeneralCurrentValue(addresses, chainId, timeRange, useCache) {
 
     try {
         const response = await fetch("https://api.1inch.dev/portfolio/portfolio/v4/general/profit_and_loss", {

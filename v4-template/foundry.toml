@@ -22,5 +22,6 @@ evm_version = "cancun"
 chain = 84532
 base_sepolia = "https://base-sepolia.g.alchemy.com/v2/GbQIfyw0myWOarypoVsyfL_nxPn4SWCk"
 
-
+[rpc_endpoints]
+celo_alfajores = "${CELO_ALFAJORES_RPC}"
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

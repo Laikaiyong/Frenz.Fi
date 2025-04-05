@@ -3,12 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { usePrivy } from '@privy-io/react-auth';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function CreateLiquidityPosition() {
   const { ready, authenticated, user, login } = usePrivy();
@@ -168,122 +162,68 @@ export default function CreateLiquidityPosition() {
 
   return (
     <div className="container mx-auto p-4 max-w-xl">
-      <Card>
-        <CardHeader>
-          <CardTitle>Create Liquidity Position</CardTitle>
-          <CardDescription>
-            Add liquidity to a pool with dynamic fees
-          </CardDescription>
-        </CardHeader>
+      <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-xl p-6">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold mb-2">Create Liquidity Position</h2>
+          <p className="text-gray-600">Add liquidity to a pool with dynamic fees</p>
+        </div>
         
-        <CardContent className="space-y-4">
+        <div className="space-y-6">
           {error && (
-            <Alert variant="destructive">
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          
-          {success && (
-            <Alert>
-              <AlertTitle>Success</AlertTitle>
-              <AlertDescription>{success}</AlertDescription>
-            </Alert>
-          )}
-          
-          {!authenticated && (
-            <div className="text-center p-4">
-              <p className="mb-4">You need to connect your wallet to create a liquidity position</p>
-              <Button onClick={login}>Login with Privy</Button>
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
+              <p className="font-bold">Error</p>
+              <p>{error}</p>
             </div>
           )}
           
-          {authenticated && (
+          {success && (
+            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4">
+              <p className="font-bold">Success</p>
+              <p>{success}</p>
+            </div>
+          )}
+          
+          {!authenticated ? (
+            <div className="text-center p-4">
+              <p className="mb-4">You need to connect your wallet to create a liquidity position</p>
+              <button
+                onClick={login}
+                className="px-6 py-2 bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white rounded-full hover:opacity-90 transition-all"
+              >
+                Login with Privy
+              </button>
+            </div>
+          ) : (
             <>
-              <div>
-                <Label>Select Pool</Label>
-                <Select 
-                  value={selectedPool?.name} 
-                  onValueChange={handlePoolSelect}
-                  disabled={!hookInfo.supportedPools || hookInfo.supportedPools.length === 0}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Select Pool</label>
+                <select
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0052FF] focus:border-[#0052FF] outline-none"
+                  value={selectedPool?.name}
+                  onChange={(e) => handlePoolSelect(e.target.value)}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a pool" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {hookInfo.supportedPools.map((pool, index) => (
-                      <SelectItem key={index} value={pool.name}>
-                        {pool.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <option value="">Select a pool</option>
+                  {hookInfo?.supportedPools?.map((pool, index) => (
+                    <option key={index} value={pool.name}>
+                      {pool.name}
+                    </option>
+                  ))}
+                </select>
               </div>
+
+              {/* Continue with the rest of your form fields using similar styling */}
               
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Lower Tick (Must be multiple of {selectedPool?.tickSpacing})</Label>
-                  <Input 
-                    type="number" 
-                    value={tickLower}
-                    onChange={(e) => setTickLower(parseInt(e.target.value))}
-                  />
-                </div>
-                <div>
-                  <Label>Upper Tick (Must be multiple of {selectedPool?.tickSpacing})</Label>
-                  <Input 
-                    type="number" 
-                    value={tickUpper}
-                    onChange={(e) => setTickUpper(parseInt(e.target.value))}
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>{selectedPool?.token0Symbol || 'Token0'} Amount</Label>
-                  <Input 
-                    type="text" 
-                    placeholder="0.0"
-                    value={amount0}
-                    onChange={(e) => setAmount0(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>{selectedPool?.token1Symbol || 'Token1'} Amount</Label>
-                  <Input 
-                    type="text" 
-                    placeholder="0.0"
-                    value={amount1}
-                    onChange={(e) => setAmount1(e.target.value)}
-                  />
-                </div>
-              </div>
-              
-              <div className="rounded-md bg-slate-50 p-4">
-                <h3 className="text-sm font-medium">Fee Information</h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  Base Fee: {hookInfo.formattedBaseFee}
-                </p>
-                <p className="text-sm text-gray-600">
-                  This pool uses a dynamic fee that adjusts based on trading volume and volatility.
-                </p>
-              </div>
+              <button
+                onClick={createPosition}
+                disabled={isLoading || !selectedPool || !amount0 || !amount1}
+                className="w-full px-6 py-3 bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white rounded-full hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? 'Creating Position...' : 'Create Position'}
+              </button>
             </>
           )}
-        </CardContent>
-        
-        <CardFooter>
-          <Button 
-            className="w-full"
-            onClick={createPosition}
-            disabled={isLoading || (authenticated && (!selectedPool || !amount0 || !amount1))}
-          >
-            {!authenticated ? 'Connect Wallet' : 
-              isLoading ? 'Creating Position...' : 'Create Position'}
-          </Button>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

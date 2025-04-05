@@ -6,6 +6,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import getGroqChatCompletion from "../api/groq/getGroqChatCompletion";
 
 export default function ChatPage() {
   const [messages, setMessages] = useState([]);
@@ -44,23 +45,21 @@ export default function ChatPage() {
     const userMessage = {
       type: "user",
       content: input,
-      timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMessage = {
-        type: "ai",
-        content: "This is a simulated AI response. Integration pending.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMessage]);
-      setIsLoading(false);
-    }, 1000);
+    const response = await getGroqChatCompletion(input);
+
+    const aiMessage = {
+      type: "ai",
+      content: response,
+    };
+
+    setIsLoading(false);
+    setMessages((prev) => [...prev, aiMessage]);
   };
 
   return (

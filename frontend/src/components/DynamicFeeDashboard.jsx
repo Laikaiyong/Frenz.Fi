@@ -2,18 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 export default function DynamicFeeDashboard() {
-  const { ready, authenticated } = usePrivy();
+  const { ready } = usePrivy();
   const [pools, setPools] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [emergencyStatus, setEmergencyStatus] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch pool info regardless of authentication
     async function fetchData() {
       try {
         setIsLoading(true);
@@ -35,10 +32,7 @@ export default function DynamicFeeDashboard() {
 
     if (ready) {
       fetchData();
-      // Set up a polling interval to refresh data
-      const interval = setInterval(fetchData, 30000); // Refresh every 30 seconds
-      
-      // Clean up on unmount
+      const interval = setInterval(fetchData, 30000);
       return () => clearInterval(interval);
     }
   }, [ready]);
@@ -64,30 +58,33 @@ export default function DynamicFeeDashboard() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {pools.map((pool, index) => (
-          <Card key={index}>
-            <CardHeader>
-              <CardTitle>{pool.name}</CardTitle>
-              <Badge variant="secondary">{pool.formattedCurrentFee} Fee</Badge>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Total Volume:</span>
-                  <span className="font-semibold">{pool.formattedVolume}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Swap Count:</span>
-                  <span className="font-semibold">{pool.swapCount}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Status:</span>
-                  <span className="font-semibold">
-                    {pool.initialized === false ? "Not Initialized" : "Active"}
-                  </span>
-                </div>
+          <div 
+            key={index}
+            className="bg-white/80 backdrop-blur-sm rounded-lg shadow-xl p-6 hover:shadow-2xl transition-all"
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">{pool.name}</h3>
+              <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                {pool.formattedCurrentFee} Fee
+              </span>
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Total Volume:</span>
+                <span className="font-semibold">{pool.formattedVolume}</span>
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Swap Count:</span>
+                <span className="font-semibold">{pool.swapCount}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Status:</span>
+                <span className="font-semibold">
+                  {pool.initialized === false ? "Not Initialized" : "Active"}
+                </span>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </div>

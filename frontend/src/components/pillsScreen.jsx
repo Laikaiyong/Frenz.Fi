@@ -12,9 +12,9 @@ const PillsScreen = ({ onSelect }) => {
       gradient: 'from-[#0052FF] to-[#0052FF]/70',
     },
     { 
-      color: '#00EF8B',
-      network: 'Flow', 
-      gradient: 'from-[#00EF8B] to-[#00EF8B]/70',
+        color: '#627EEA',
+        network: 'Ethereum', 
+        gradient: 'from-[#627EEA] to-[#627EEA]/70',
     },
     { 
       color: '#FBCC5C',
@@ -52,7 +52,7 @@ const PillsScreen = ({ onSelect }) => {
         transition={{ duration: 0.6 }}
       >
         <h1 className="text-6xl font-bold mb-4 tracking-tight text-white">
-          Choose Your <span className="bg-gradient-to-r from-[#00EF8B] via-[#0052FF] to-[#FBCC5C] text-transparent bg-clip-text">Network</span>
+          Choose Your <span className="bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-transparent bg-clip-text">Network</span>
         </h1>
         <p className="text-xl text-gray-400">
           Select a pill to enter the matrix

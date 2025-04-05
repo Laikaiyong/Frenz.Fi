@@ -9,9 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@onflow/fcl": "^1.15.0",
     "@privy-io/react-auth": "^2.8.2",
-    "@worldcoin/idkit": "^2.0.2",
     "framer-motion": "^12.6.3",
     "next": "15.2.4",
     "react": "^19.0.0",

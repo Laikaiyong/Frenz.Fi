@@ -1,20 +1,27 @@
 import { NextResponse } from "next/server";
-import { verifyCloudProof } from "@worldcoin/idkit";
 
 export async function POST(req) {
   try {
     const proof = await req.json();
-    const verifyRes = await verifyCloudProof(
-      proof,
-      process.env.NEXT_PUBLIC_WORLDCOIN_APP_ID,
-      process.env.NEXT_PUBLIC_WORLDCOIN_ACTION_ID
+    console.log('proof', proof);
+    const response = await fetch(
+      'https://developer.worldcoin.org/api/v2/verify/app_staging_129259332fd6f93d4fabaadcc5e4ff9d',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...proof, action: "test"}),
+      }
     );
 
-    if (verifyRes.success) {
-      return NextResponse.json({ success: true });
+    if (response.ok) {
+      const { verified } = await response.json();
+      return NextResponse.json({ success: verified });
     } else {
+      const { code, detail } = await response.json();
       return NextResponse.json(
-        { success: false, error: "Verification failed" },
+        { success: false, error: `Error Code ${code}: ${detail}` },
         { status: 400 }
       );
     }

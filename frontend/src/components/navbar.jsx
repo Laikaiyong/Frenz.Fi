@@ -1,58 +1,24 @@
 "use client";
 
 import { usePrivy } from "@privy-io/react-auth";
-import * as fcl from "@onflow/fcl";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
 export default function Navbar() {
   const { login, ready, authenticated, user, logout } = usePrivy();
-  const [flowUser, setFlowUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const selectedPill =
-    typeof window !== "undefined" ? localStorage.getItem("selectedPill") : null;
+  const [selectedPill, setSelectedPill] = useState(null);
 
   useEffect(() => {
-    fcl
-      .config()
-      .put("flow.network", "testnet")
-      .put("accessNode.api", "https://rest-testnet.onflow.org")
-      .put("discovery.wallet", "https://fcl-discovery.onflow.org/testnet/authn")
-      .put(
-        "walletconnect.projectId",
-        process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
-      )
-      .put("app.detail.title", "Test Harness")
-      .put("app.detail.icon", "https://i.imgur.com/r23Zhvu.png")
-      .put("app.detail.description", "A test harness for FCL")
-      .put("app.detail.url", "https://myapp.com")
-      .put("0xFlowToken", "0x7e60df042a9c0868");
-    fcl.currentUser.subscribe(setFlowUser);
-    setIsLoading(false);
+    // Check localStorage after component mounts
+    const pill = localStorage.getItem("selectedPill");
+    setSelectedPill(pill);
   }, []);
 
-  const handleFlowLogin = async () => {
-    try {
-      await fcl.authenticate();
-    } catch (error) {
-      console.error("Error logging in with Flow:", error);
-    }
-  };
-
-  const handleFlowLogout = async () => {
-    try {
-      await fcl.unauthenticate();
-    } catch (error) {
-      console.error("Error logging out from Flow:", error);
-    }
-  };
-
   const networkConfig = {
-    flow: {
-      name: "Flow",
-      icon: "https://cryptologos.cc/logos/flow-flow-logo.png",
-      color: "#00EF8B",
+    ethereum: {
+      name: "Ethereum",
+      icon: "https://images.seeklogo.com/logo-png/40/2/ethereum-logo-png_seeklogo-407463.png",
+      color: "#627EEA",
     },
     base: {
       name: "Base",
@@ -70,7 +36,7 @@ export default function Navbar() {
     <Link 
       href="/app?reset=true"
       className={`
-        flex mr-4 items-center gap-2 px-4 py-2 rounded-full
+        flex mr-2 items-center gap-2 px-4 py-2 rounded-full
         ${network ? 'border-2 border-gray-200 hover:border-gray-300' : 'bg-gradient-to-r from-[#00EF8B] via-[#0052FF] to-[#FBCC5C]'}
         transition-all ml-4 group hover:scale-[1.02]
       `}
@@ -144,50 +110,7 @@ export default function Navbar() {
     );
   }
 
-  if (selectedPill === "flow") {
-    return (
-      <nav className="fixed top-0 w-full backdrop-blur-md bg-transparent shadow-sm3 z-50 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <a href="/app" className="text-2xl font-bold">
-            <img
-              src="/logo.png"
-              alt="Frenz.fi Logo"
-              className="h-8 inline-block mr-2"
-            />
-            Frenz.fi
-          </a>
-          {!isLoading && (
-            <div className="flex items-center">
-              <NetworkButton network="flow" />
-              {flowUser?.addr && (
-                <span className="text-sm text-gray-600">
-                  {flowUser.addr.slice(0, 6)}...{flowUser.addr.slice(-4)}
-                </span>
-              )}
-              <div
-                className={`${
-                  flowUser?.addr
-                    ? "p-[2px] bg-gradient-to-r from-[#00EF8B] via-[#0052FF] to-[#FBCC5C] rounded-full"
-                    : ""
-                }`}>
-                <button
-                  onClick={flowUser?.addr ? handleFlowLogout : handleFlowLogin}
-                  className={`px-6 py-2 rounded-full font-bold ${
-                    flowUser?.addr
-                      ? "bg-white hover:bg-transparent text-black hover:text-white"
-                      : "bg-gradient-to-r from-[#00EF8B] via-[#0052FF] to-[#FBCC5C] text-white"
-                  } hover:opacity-90 transition-all transform hover:scale-105`}>
-                  {flowUser?.addr ? "Logout" : "Connect Flow"}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
-    );
-  }
-
-  // Default Privy login for other networks
+  // Default Privy login
   return (
     <nav className="fixed top-0 w-full backdrop-blur-md bg-transparent shadow-sm3 z-50 px-6 py-4">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -200,11 +123,11 @@ export default function Navbar() {
           Frenz.fi
         </a>
         <>
-          {ready && (
+        {ready && (
             <div className="flex items-center">
               <NetworkButton network={selectedPill} />
               {authenticated && (
-                <span className="text-sm text-gray-600">
+                <span className="text-sm mr-2 text-gray-600">
                   {user?.wallet?.address?.slice(0, 6)}...
                   {user?.wallet?.address?.slice(-4)}
                 </span>
@@ -212,7 +135,7 @@ export default function Navbar() {
               <div
                 className={`${
                   authenticated
-                    ? "p-[2px] bg-gradient-to-r from-[#00EF8B] via-[#0052FF] to-[#FBCC5C] rounded-full"
+                    ? "p-[2px] bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] rounded-full"
                     : ""
                 }`}>
                 <button
@@ -220,7 +143,7 @@ export default function Navbar() {
                   className={`px-6 py-2 rounded-full font-bold ${
                     authenticated
                       ? "bg-white hover:bg-transparent text-black hover:text-white"
-                      : "bg-gradient-to-r from-[#00EF8B] via-[#0052FF] to-[#FBCC5C] text-white"
+                      : "bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white"
                   } hover:opacity-90 transition-all transform hover:scale-105`}>
                   {authenticated ? "Logout" : "Login"}
                 </button>

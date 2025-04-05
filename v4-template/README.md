@@ -1,8 +1,15 @@
-# Dynamic Fee Hook for Uniswap v4 on Base Mainnet
+# Dynamic Fee Hook + MEV + Circuit Breaker for Uniswap v4
 
 ## Overview
 
-This project implements a Dynamic Fee mechanism for Uniswap v4 pools on Base mainnet using hooks. The DynamicFeeHook automatically adjusts LP fees based on trading conditions to optimize revenue capture during periods of high volume or volatility.
+Uniswap v4 introduces hooks - customizable logic that can intervene at various points in the swap lifecycle. This DynamicFeeHook leverages the hook system to:
+
+- Start with a base fee (0.05%) during normal market conditions
+- Automatically increase fees during periods of high trading volume
+- Scale fees up to 3% during extreme market activity
+- Track volume and swap metrics for analysis
+- Protect against MEV and price manipulation
+- Implement circuit breakers for abnormal price movements
 
 ## Base Mainnet Deployment Details
 
@@ -12,11 +19,12 @@ This project implements a Dynamic Fee mechanism for Uniswap v4 pools on Base mai
 - **Permit2**: `0x000000000022D473030F116dDEE9F6B43aC78BA3`
 
 ### Hooks Addresses
-- **Base Mainnet**: `https://basescan.org/address/0xeb81c4d4f4b5dbdac055e547ee805640328eb0c0`
+- **Base Mainnet**: `0xeb81c4d4f4b5dbdac055e547ee805640328eb0c0`
+https://basescan.org/address/0xeb81c4d4f4b5dbdac055e547ee805640328eb0c0
 
 ### Sample transaction
 
-- **ETH / USDC**: `https://basescan.org/tx/0x0e8fc8e0e1616faed018962af39ded4335675e8902817284f14ed69552beafa8`
+- **ETH / USDC**: https://basescan.org/tx/0x0e8fc8e0e1616faed018962af39ded4335675e8902817284f14ed69552beafa8
 
 ## Celo Alfajores Deployment Details
 
@@ -48,7 +56,10 @@ https://sepolia.etherscan.io/address/0x89fb990845b7643d13717815cf752ae9087bb0c0
 - **Progressive Fee Structure**: Five fee tiers (0.05% to 3%) that adjust dynamically
 - **Volume-Based Metrics**: Fee calculations based on actual trade size
 - **Optimized Contract Size**: Designed to fit within Ethereum's contract size limits
-- **Easy Integration**: Seamless hook integration with Uniswap v4 pools on Base
+- **Easy Integration**: Seamless hook integration with standard Uniswap v4 pools
+- **MEV Protection**: Minimum blocks at elevated fee prevents fee manipulation
+- **Circuit Breakers**: Price deviation thresholds protect against flash crashes and price manipulation
+- **Emergency Controls**: Owner can activate emergency mode with custom fees during market stress
 
 ## Fee Tiers
 
@@ -102,6 +113,39 @@ forge script script/AddLiquidityToPool.s.sol \
   --private-key $PRIVATE_KEY \
   --broadcast
 ```
+### MEV Protection Logic
+
+The hook includes specific protections against MEV:
+
+```solidity
+// MEV Protection: If fee would decrease but we're still within the
+// protection window, maintain the current fee
+if (baseFee < data.currentFee && 
+    block.number <= data.blockLastElevation + MIN_BLOCKS_AT_ELEVATED_FEE) {
+    return data.currentFee;
+}
+```
+
+### Price Manipulation Detection
+
+```solidity
+// Check if price is outside the acceptable range
+return (
+    currentPrice > data.upperPriceBound || 
+    currentPrice < data.lowerPriceBound
+);
+```
+
+## Protection Mechanisms
+
+| Feature | Description |
+|---------|-------------|
+| **Circuit Breakers** | Automatic detection of price movements exceeding 8% threshold |
+| **Fee Increase Limits** | Maximum 0.15% fee increase per block prevents rapid fee spikes |
+| **Minimum Elevation Period** | Fees stay elevated for at least 3 blocks to prevent sandwiching |
+| **Price Boundaries** | Dynamic upper and lower price boundaries updated after each swap |
+| **Emergency Mode** | Owner-activated override with custom fees for market stress scenarios |
+
 
 ## Implementation Considerations
 

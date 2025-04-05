@@ -17,7 +17,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef(null);
   const [tokenOwned, setTokenOwned] = useState();
-  const [transformedTokens, setTransformedTokens] = useState();
+  const [response, setResponse] = useState();
   const [selectedNetwork, setSelectedNetwork] = useState()
   
   useEffect(() => {
@@ -43,13 +43,12 @@ export default function ChatPage() {
   }, [authenticated, user?.wallet?.address, selectedNetwork]);
 
   useEffect(() => {
-    async function provideAiWithTokenInfo() {
+    async function provideAiWithTokenInfo(transformedTokens) {
       if(transformedTokens){
         const response = await getGroqChatCompletion(transformedTokens+". This is the token profile that I have. Please remember this.");
 
-        
-              }
-
+        setResponse(response)
+      }
     }
 
     if (tokenOwned) {
@@ -58,15 +57,12 @@ export default function ChatPage() {
         totalSupply: token.contract.totalSupply,
         balance: token.balance,
       }));
-      setTransformedTokens(transformedTokens);
+      provideAiWithTokenInfo(transformedTokens) 
+      
     }
   }, [tokenOwned]);
 
-  useEffect(() => {
-    
-
-    provideAiWithTokenInfo()
-  },[transformedTokens]);
+  console.log(response)
 
   // Mock data for token and insurance info
   const relevantInfo = {

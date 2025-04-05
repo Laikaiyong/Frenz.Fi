@@ -9,6 +9,8 @@ export default async function main(message) {
   const chatCompletion = await getGroqChatCompletion(message);
   // Print the completion returned by the LLM.
 
+  console.log(chatCompletion.choices[0]?.message?.content)
+
   return chatCompletion.choices[0]?.message?.content || "";
 }
 

@@ -10,8 +10,8 @@ import {HookMiner} from "v4-periphery/src/utils/HookMiner.sol";
 
 contract BaseMainnetDeployment is Script {
     // Base Mainnet official addresses (VERIFY THESE!)
-    address constant POOL_MANAGER = 0x498581fF718922c3f8e6A244956aF099B2652b2b; // Replace with actual Base mainnet Pool Manager address
-    address constant CREATE2_DEPLOYER = 0x4e59b44847b379578588920cA78FbF26c0B4956C; // This is usually consistent
+    address constant POOL_MANAGER = 0x498581fF718922c3f8e6A244956aF099B2652b2b; 
+    address constant CREATE2_DEPLOYER = 0x4e59b44847b379578588920cA78FbF26c0B4956C; 
 
     function run() public {
         // Get the deployment private key from environment

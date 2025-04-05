@@ -12,10 +12,11 @@ import {TickMath} from "v4-core/src/libraries/TickMath.sol";
 import {StateLibrary} from "v4-core/src/libraries/StateLibrary.sol";
 
 import {EasyPosm} from "../test/utils/EasyPosm.sol";
-import {Constants} from "./base/Constants.sol";
+import {BaseSepoliaConstants} from "../src/BaseSepoliaConstants.sol";
+
 import {Config} from "./base/Config.sol";
 
-contract AddLiquidityScript is Script, Constants, Config {
+contract AddLiquidityScript is Script, BaseSepoliaConstants, Config(0x2Af2B1F02685FC6c6b4f7fA17e1FcFc4c2eeB0C0) {
     using CurrencyLibrary for Currency;
     using EasyPosm for IPositionManager;
     using StateLibrary for IPoolManager;

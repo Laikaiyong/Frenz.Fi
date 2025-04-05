@@ -5,12 +5,13 @@ import "forge-std/Script.sol";
 import {Hooks} from "v4-core/src/libraries/Hooks.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 
-import {Constants} from "../script/base/BaseSepoliaConstants.sol";
+import {BaseSepoliaConstants} from "../src/BaseSepoliaConstants.sol";
+
 import {DynamicFeeHook} from "../src/DynamicFeeHook.sol";
 import {HookMiner} from "v4-periphery/src/utils/HookMiner.sol";
 
 /// @notice Mines the address and deploys the DynamicFeeHook.sol contract
-contract DynamicFeeHookScript is Script, Constants {
+contract DynamicFeeHookScript is Script, BaseSepoliaConstants {
     function setUp() public {}
 
     function run() public {

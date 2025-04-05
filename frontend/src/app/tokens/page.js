@@ -23,6 +23,7 @@ export default function TokensPage() {
         marketCap: "$1.2M",
         volume: "$250K",
         network: "ethereum",
+        contractAddress: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe"
       },
       {
         id: "base-token",
@@ -33,6 +34,7 @@ export default function TokensPage() {
         marketCap: "$500K",
         volume: "$100K",
         network: "base",
+        contractAddress: "0x07150e919B4De5fD6a63DE1F9384828396f25fDC"
       },
       // Add more mock tokens...
     ]);
@@ -94,7 +96,7 @@ export default function TokensPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Link href={`/token/${token.id}`}>
+            <Link href={`/token/${token.contractAddress}`}>
               <div className="p-6 bg-white/80 backdrop-blur-sm rounded-lg shadow-xl hover:shadow-2xl transition-all">
                 <div className="flex justify-between items-start mb-4">
                   <div>

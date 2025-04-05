@@ -8,7 +8,7 @@ dotenv.config();
  * @returns {Promise<Object>} A promise that resolves to the response object containing the protocols' current values.
  * @throws {Error} Throws an error if the HTTP request fails or the response is not ok.
  */
-export default async function useGetTokensOwnedByAccount(accountAddress, contractAddresses = null, page = null, rpp = null, cursor = null, withCount = false) {
+export default async function useGetTokensOwnedByAccount(network, accountAddress, contractAddresses = null, page = null, rpp = null, cursor = null, withCount = false) {
     // Ensure dotenv is configured correctly
 
     const body = {
@@ -22,7 +22,7 @@ export default async function useGetTokensOwnedByAccount(accountAddress, contrac
     if (cursor) body.cursor = cursor;
 
     try {
-        const response = await fetch("https://web3.nodit.io/v1/base/mainnet/token/getTokensOwnedByAccount", {
+        const response = await fetch(`https://web3.nodit.io/v1/${network}/mainnet/token/getTokensOwnedByAccount`, {
             method: "POST",
             headers: {
                 accept: 'application/json',
@@ -37,8 +37,6 @@ export default async function useGetTokensOwnedByAccount(accountAddress, contrac
         }
 
         const data = await response.json();
-
-        console.log(data)
 
         return data;
     } catch (error) {

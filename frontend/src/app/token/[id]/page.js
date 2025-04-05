@@ -12,6 +12,10 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { usePrivy } from "@privy-io/react-auth";
+import useGetTokenHoldersByContract from "@/app/api/nodit/token/useGetTokenHoldersByContract";
+import useGetTokenPricesByContracts from "@/app/api/nodit/token/useGetTokenPricesByContracts";
+import useGetTokenTransfersByContract from "@/app/api/nodit/token/useGetTokenTransfersByContract";
+import useGetTokenContractMetadataByContracts from "@/app/api/nodit/token/useGetTokenContractMetadataByContracts";
 
 export default function TokenDetailPage() {
   const { id } = useParams();
@@ -19,17 +23,24 @@ export default function TokenDetailPage() {
   const [isHodler, setIsHodler] = useState(false);
   const [sentiment, setSentiment] = useState({ bullish: 60, bearish: 40 });
   const [activeTab, setActiveTab] = useState("overview");
+  const [tokenHolders, setTokenHolders] = useState();
+  const [tokenPrices, setTokenPrices] = useState();
+  const [tokenTransfers, setTokenTransfers] = useState()
+  const [tokenMetadata, setTokenMetadata] = useState()
 
   useEffect(() => {
     const fetchTokenData = async () => {
       try {
-        const tokenHolders = await useGetTokenHoldersByContract(tokenContractAddress);
-        const tokenPrices = await useGetTokenPricesByContracts(tokenContractAddress);
-        const tokenTransfers = await useGetTokenTransfersByContract(tokenContractAddress);
-        const tokenMetadata = await useGetNftContractMetadataByContracts(tokenContractAddress);
+        const tokenHolders = await useGetTokenHoldersByContract('0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913');
+        const tokenPrices = await useGetTokenPricesByContracts(id);
+        const tokenTransfers = await useGetTokenTransfersByContract(id);
+        const tokenMetadata = await useGetTokenContractMetadataByContracts(id);
 
+        setTokenHolders(tokenHolders)
+        setTokenPrices(tokenPrices)
+        setTokenTransfers(tokenTransfers)
+        setTokenMetadata(tokenMetadata)
 
-        console.log(tokenHolders, tokenPrices, tokenTransfers, tokenMetadata);
       } catch (error) {
         console.error("Error fetching token data:", error);
       }
@@ -38,6 +49,11 @@ export default function TokenDetailPage() {
     fetchTokenData();
 
   },[])
+
+  console.log(tokenHolders)
+  console.log(tokenPrices)
+  console.log(tokenTransfers)
+  console.log(tokenMetadata)
 
   // Mock token data
   const tokenData = {

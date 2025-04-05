@@ -17,21 +17,31 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef(null);
   const [tokenOwned, setTokenOwned] = useState();
+  const [selectedNetwork, setSelectedNetwork] = useState()
   
+  useEffect(() => {
+    const network = localStorage.getItem("selectedPill");
+    setSelectedNetwork(network);
+  }, []);
+
+  const fetchTokenData = async () => {
+    try {
+      const tokenOwned = await useGetTokensOwnedByAccount(network,
+        user.wallet.address);
+
+      setTokenOwned(tokenOwned);
+    } catch (error) {
+      console.error("Error fetching token data:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchTokenData = async () => {
-      try {
-        const tokenOwned = await useGetTokensOwnedByAccount(user);
+    if (authenticated && user?.wallet?.address && selectedNetwork) {
+      fetchTokenData();
+    }
+  }, [authenticated, user?.wallet?.address, selectedNetwork]);
 
-        setTokenOwned(tokenOwned);
-      } catch (error) {
-        console.error("Error fetching token data:", error);
-      }
-    };
-
-    fetchTokenData();
-  }, []);
+  
 
   console.log(tokenOwned)
 

@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 /**
  * Fetches the current value of a protocol from the 1inch API.
  * @param {string} contractAddress - An array of contract addresses to fetch the metadata of NFT contracts.

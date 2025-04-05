@@ -17,21 +17,31 @@ export default function ProfilePage() {
 
   const [isLoading, setIsLoading] = useState(true);
 
+  async function fetchAndSetTokens() {
+    try {
+        const tokenHoldings = await useGetTokensOwnedByAccount('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045');
+        setTokens({
+            holdings: tokenHoldings.items.map(token => ({
+              name: token.contract.name || "Unknown Token",
+              symbol: token.contract.symbol || "UNKNOWN",
+              balance: (BigInt(token.balance) / BigInt(10 ** 18)).toString(), // Assuming 18 decimals
+            })),
+            deployed: tokenHoldings.items
+              .filter(token => token.contract.deployerAddress === '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')
+              .map(token => ({
+                name: token.contract.name || "Unknown Token",
+                symbol: token.contract.symbol || "UNKNOWN",
+                totalSupply: token.contract.totalSupply || "0",
+                holders: token.contract.holders || 0
+              }))
+        });
+    } catch (error) {
+        console.error("Error fetching tokens:", error);
+    }
+  }
+
   useEffect(() => {
-    // TODO: Fetch user's token data
-    // Mock data for now
-    setTokens({
-      holdings: [
-        { name: "Ethereum", symbol: "ETH", balance: "1.5", value: "$3,000" },
-        { name: "Base", symbol: "BASE", balance: "100", value: "$200" },
-        { name: "Celo", symbol: "CELO", balance: "500", value: "$750" },
-      ],
-      deployed: [
-        { name: "MyToken", symbol: "MTK", totalSupply: "1,000,000", holders: 150 },
-        { name: "Community", symbol: "COM", totalSupply: "500,000", holders: 75 },
-      ]
-    });
-    setIsLoading(false);
+    fetchAndSetTokens()
   }, []);
 
   if (!authenticated) {

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -12,20 +12,19 @@ export default function BottomNav() {
     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
       <div className="flex items-center gap-2 px-6 py-4 bg-white/80 backdrop-blur-md rounded-full shadow-xl">
         {/* Home */}
-        <Link href="/app" 
+        <Link
+          href="/app"
           className={`p-3 rounded-full transition-all ${
-            isActive('/app') 
-              ? 'bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white' 
-              : 'text-gray-500 hover:bg-gray-100'
-          }`}
-        >
+            isActive("/app")
+              ? "bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white"
+              : "text-gray-500 hover:bg-gray-100"
+          }`}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            className="w-6 h-6"
-          >
+            className="w-6 h-6">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -35,21 +34,20 @@ export default function BottomNav() {
           </svg>
         </Link>
 
-        {/* Launch */}
-        <Link href="/launch"
+        {/* Tokens */}
+        <Link
+          href="/tokens"
           className={`p-3 rounded-full transition-all ${
-            isActive('/launch') 
-              ? 'bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white' 
-              : 'text-gray-500 hover:bg-gray-100'
-          }`}
-        >
+            isActive("/launch")
+              ? "bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white"
+              : "text-gray-500 hover:bg-gray-100"
+          }`}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            className="w-6 h-6"
-          >
+            className="w-6 h-6">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -59,21 +57,43 @@ export default function BottomNav() {
           </svg>
         </Link>
 
-        {/* Governance */}
-        <Link href="/insurance"
-          className={`p-3 rounded-full transition-all ${
-            isActive('/insurance') 
-              ? 'bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white' 
-              : 'text-gray-500 hover:bg-gray-100'
-          }`}
-        >
+        {/* Chat */}
+        <Link
+          href="/chat"
+          className={`p-4 rounded-full transition-all transform scale-110 hover:scale-125 ${
+            isActive("/chat")
+              ? "bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white scale-125 shadow-lg"
+              : "text-gray-500 hover:bg-gray-100 border-2 border-gradient-to-r border-[#627EEA]"
+          }`}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            className="w-6 h-6"
-          >
+            className="w-7 h-7">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+            />
+          </svg>
+        </Link>
+
+        {/* Governance */}
+        <Link
+          href="/insurance"
+          className={`p-3 rounded-full transition-all ${
+            isActive("/insurance")
+              ? "bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white"
+              : "text-gray-500 hover:bg-gray-100"
+          }`}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            className="w-6 h-6">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -84,20 +104,19 @@ export default function BottomNav() {
         </Link>
 
         {/* Profile */}
-        <Link href="/profile"
+        <Link
+          href="/profile"
           className={`p-3 rounded-full transition-all ${
-            isActive('/profile') 
-              ? 'bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white' 
-              : 'text-gray-500 hover:bg-gray-100'
-          }`}
-        >
+            isActive("/profile")
+              ? "bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white"
+              : "text-gray-500 hover:bg-gray-100"
+          }`}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            className="w-6 h-6"
-          >
+            className="w-6 h-6">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"

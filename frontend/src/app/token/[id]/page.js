@@ -20,6 +20,25 @@ export default function TokenDetailPage() {
   const [sentiment, setSentiment] = useState({ bullish: 60, bearish: 40 });
   const [activeTab, setActiveTab] = useState("overview");
 
+  useEffect(() => {
+    const fetchTokenData = async () => {
+      try {
+        const tokenHolders = await useGetTokenHoldersByContract(tokenContractAddress);
+        const tokenPrices = await useGetTokenPricesByContracts(tokenContractAddress);
+        const tokenTransfers = await useGetTokenTransfersByContract(tokenContractAddress);
+        const tokenMetadata = await useGetNftContractMetadataByContracts(tokenContractAddress);
+
+
+        console.log(tokenHolders, tokenPrices, tokenTransfers, tokenMetadata);
+      } catch (error) {
+        console.error("Error fetching token data:", error);
+      }
+    };
+
+    fetchTokenData();
+
+  },[])
+
   // Mock token data
   const tokenData = {
     name: "Sample Token",

@@ -27,10 +27,31 @@ export default function LaunchForm() {
         // Handle form submission logic here
     }
 
+    const [imagePreview, setImagePreview] = useState(null);
+    const [brandingFiles, setBrandingFiles] = useState([]);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFormData({...formData, image: file});
+            const reader = new FileReader();
+            reader.onloadend = () => setImagePreview(reader.result);
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleBrandingKitChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFormData({...formData, brandingKit: file});
+            setBrandingFiles([file]); // Show file name in preview
+        }
+    };
+
     return (
         <div className="mt-20">
-            <form onSubmit={handleSubmit} className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg space-y-6">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Launch Your Token</h2>
+            <form onSubmit={handleSubmit} className="max-w-2xl mx-auto bg-white/80 backdrop-blur-sm p-8 rounded-lg shadow-xl space-y-6">
+                <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-400 mb-6">Launch Your Token</h2>
                 
                 <div className="space-y-4">
                     <div>
@@ -39,7 +60,7 @@ export default function LaunchForm() {
                             type="text"
                             value={formData.ticker}
                             onChange={(e) => setFormData({...formData, ticker: e.target.value})}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00f0ff] focus:border-[#00f0ff] outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm"
                         />
                     </div>
 
@@ -49,7 +70,7 @@ export default function LaunchForm() {
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData({...formData, name: e.target.value})}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00f0ff] focus:border-[#00f0ff] outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm"
                         />
                     </div>
 
@@ -58,68 +79,84 @@ export default function LaunchForm() {
                         <textarea
                             value={formData.description}
                             onChange={(e) => setFormData({...formData, description: e.target.value})}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00f0ff] focus:border-[#00f0ff] outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm"
                             rows="4"
                         />
                     </div>
 
                     <div>
                         <label className="text-sm font-medium text-gray-700 block mb-2">Token Image</label>
-                        <input
-                            type="file"
-                            onChange={(e) => setFormData({...formData, image: e.target.files[0]})}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                        />
+                        <div className="flex items-center space-x-4">
+                            <input
+                                type="file"
+                                accept="image/png, image/jpeg, image/gif"
+                                onChange={handleImageChange}
+                                className="hidden"
+                                id="token-image"
+                            />
+                            <label
+                                htmlFor="token-image"
+                                className="px-4 py-2 border border-gray-300 rounded-md cursor-pointer hover:border-[#00f0ff] transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                            >
+                                Choose File
+                            </label>
+                            {imagePreview && (
+                                <div className="relative w-16 h-16">
+                                    <img
+                                        src={imagePreview}
+                                        alt="Token preview"
+                                        className="w-16 h-16 object-cover rounded-md"
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div>
                         <label className="text-sm font-medium text-gray-700 block mb-2">Branding Kit (ZIP)</label>
-                        <input
-                            type="file"
-                            accept=".zip"
-                            onChange={(e) => setFormData({...formData, brandingKit: e.target.files[0]})}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                        />
+                        <div className="flex items-center space-x-4">
+                            <input
+                                type="file"
+                                accept=".zip"
+                                onChange={handleBrandingKitChange}
+                                className="hidden"
+                                id="branding-kit"
+                            />
+                            <label
+                                htmlFor="branding-kit"
+                                className="px-4 py-2 border border-gray-300 rounded-md cursor-pointer hover:border-[#00f0ff] transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                            >
+                                Choose File
+                            </label>
+                            {brandingFiles.length > 0 && (
+                                <div className="text-sm text-gray-600">
+                                    {brandingFiles[0].name}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="space-y-3">
                         <label className="text-sm font-medium text-gray-700 block">Social Links</label>
-                        <input
-                            type="url"
-                            placeholder="Twitter URL"
-                            value={formData.socials.twitter}
-                            onChange={(e) => setFormData({
-                                ...formData,
-                                socials: {...formData.socials, twitter: e.target.value}
-                            })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                        />
-                        <input
-                            type="url"
-                            placeholder="Telegram URL"
-                            value={formData.socials.telegram}
-                            onChange={(e) => setFormData({
-                                ...formData,
-                                socials: {...formData.socials, telegram: e.target.value}
-                            })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                        />
-                        <input
-                            type="url"
-                            placeholder="Discord URL"
-                            value={formData.socials.discord}
-                            onChange={(e) => setFormData({
-                                ...formData,
-                                socials: {...formData.socials, discord: e.target.value}
-                            })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                        />
+                        {['twitter', 'telegram', 'discord'].map((social) => (
+                            <input
+                                key={social}
+                                type="url"
+                                placeholder={`${social.charAt(0).toUpperCase() + social.slice(1)} URL`}
+                                value={formData.socials[social]}
+                                onChange={(e) => setFormData({
+                                    ...formData,
+                                    socials: {...formData.socials, [social]: e.target.value}
+                                })}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00f0ff] focus:border-[#00f0ff] outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                            />
+                        ))}
                     </div>
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors duration-200 font-medium mt-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="w-full bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 text-white py-3 px-4 rounded-md hover:opacity-90 transition-all duration-200 font-medium mt-6 focus:outline-none focus:ring-2 focus:ring-[#00f0ff] focus:ring-offset-2 transform hover:scale-[1.02]"
                 >
                     Launch Token
                 </button>

@@ -9,7 +9,8 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import PillsScreen from "@/components/pillsScreen";
 
 // Mock data - Replace with actual data from your backend
@@ -46,12 +47,29 @@ const LIQUIDITY_POOLS = [
 ];
 
 export default function AppPage() {
+
   const [selectedPill, setSelectedPill] = useState(null);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Check for reset parameter
+    if (searchParams.get("reset") === "true") {
+      localStorage.removeItem("selectedPill");
+      setSelectedPill(null);
+      return;
+    }
+
+    // Check localStorage for existing selection
+    const storedPill = localStorage.getItem("selectedPill");
+    if (storedPill) {
+      setSelectedPill(storedPill);
+    }
+  }, [searchParams]);
 
   const handlePillSelection = (color) => {
     setSelectedPill(color);
-    console.log(color);
     localStorage.setItem("selectedPill", color);
+    window.location.href = '/app';
   };
 
   return (

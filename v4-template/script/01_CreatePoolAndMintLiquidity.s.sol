@@ -10,10 +10,11 @@ import {LiquidityAmounts} from "v4-core/test/utils/LiquidityAmounts.sol";
 import {TickMath} from "v4-core/src/libraries/TickMath.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 
-import {Constants} from "./base/Constants.sol";
+import {BaseSepoliaConstants} from "../src/BaseSepoliaConstants.sol";
+
 import {Config} from "./base/Config.sol";
 
-contract CreatePoolAndAddLiquidityScript is Script, Constants, Config {
+contract CreatePoolAndAddLiquidity is Script, BaseSepoliaConstants, Config(0x2Af2B1F02685FC6c6b4f7fA17e1FcFc4c2eeB0C0) {
     using CurrencyLibrary for Currency;
 
     /////////////////////////////////////

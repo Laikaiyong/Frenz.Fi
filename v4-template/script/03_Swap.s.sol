@@ -8,10 +8,11 @@ import {PoolSwapTest} from "v4-core/src/test/PoolSwapTest.sol";
 import {TickMath} from "v4-core/src/libraries/TickMath.sol";
 import {CurrencyLibrary, Currency} from "v4-core/src/types/Currency.sol";
 
-import {Constants} from "./base/Constants.sol";
+import {BaseSepoliaConstants} from "../src/BaseSepoliaConstants.sol";
+
 import {Config} from "./base/Config.sol";
 
-contract SwapScript is Script, Constants, Config {
+contract SwapScript is Script, BaseSepoliaConstants, Config(0x2Af2B1F02685FC6c6b4f7fA17e1FcFc4c2eeB0C0) {
     // slippage tolerance to allow for unlimited price impact
     uint160 public constant MIN_PRICE_LIMIT = TickMath.MIN_SQRT_PRICE + 1;
     uint160 public constant MAX_PRICE_LIMIT = TickMath.MAX_SQRT_PRICE - 1;
@@ -21,7 +22,6 @@ contract SwapScript is Script, Constants, Config {
     /////////////////////////////////////
 
     // PoolSwapTest Contract address, default to the anvil address
-    PoolSwapTest swapRouter = PoolSwapTest(0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9);
 
     // --- pool configuration --- //
     // fees paid by swappers that accrue to liquidity providers

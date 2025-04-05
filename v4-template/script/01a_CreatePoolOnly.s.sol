@@ -6,10 +6,11 @@ import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 import {PoolKey} from "v4-core/src/types/PoolKey.sol";
 import {CurrencyLibrary, Currency} from "v4-core/src/types/Currency.sol";
 
-import {Constants} from "./base/Constants.sol";
+import {BaseSepoliaConstants} from "../src/BaseSepoliaConstants.sol";
+
 import {Config} from "./base/Config.sol";
 
-contract CreatePoolOnly is Script, Constants, Config {
+contract CreatePoolOnly is Script, BaseSepoliaConstants, Config(0x2Af2B1F02685FC6c6b4f7fA17e1FcFc4c2eeB0C0) {
     using CurrencyLibrary for Currency;
 
     // NOTE: Be sure to set the addresses in Constants.sol and Config.sol

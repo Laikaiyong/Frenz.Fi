@@ -28,6 +28,46 @@ export default function TokenDetailPage() {
   const [tokenTransfers, setTokenTransfers] = useState();
   const [tokenMetadata, setTokenMetadata] = useState();
 
+  const [poolData, setPoolData] = useState(null);
+  const [selectedNetwork, setSelectedNetwork] = useState(null);
+
+  // Add this useEffect to get the network from localStorage
+  useEffect(() => {
+   let network = localStorage.getItem("selectedPill");
+    network = network == "ethereum" ? "eth" : network;
+    setSelectedNetwork(network);
+  }, []);
+
+  useEffect(() => {
+    const fetchPoolData = async () => {
+      if (!id || !selectedNetwork) return;
+
+      try {
+        const response = await fetch(
+          `https://api.geckoterminal.com/api/v2/networks/${selectedNetwork}/tokens/${id}/pools`,
+          {
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch pool data");
+        }
+
+        const data = await response.json();
+        if (data.data && data.data.length > 0) {
+          setPoolData(data.data[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching pool data:", error);
+      }
+    };
+
+    fetchPoolData();
+  }, [id, selectedNetwork]);
+
   useEffect(() => {
     const fetchTokenData = async () => {
       try {
@@ -202,19 +242,77 @@ export default function TokenDetailPage() {
               ))}
             </div>
 
-            {activeTab == "overview" && (
+            {activeTab === "overview" && (
               <div className="space-y-4">
                 <div className="w-full h-[400px] rounded-lg overflow-hidden">
-                  <iframe
-                    src={`https://www.geckoterminal.com/base/pools/${id}?embed=1&info=0&swaps=0&grayscale=0&light_chart=0`}
-                    width="100%"
-                    height="100%"
-                    frameBorder="0"
-                    title="Token Price Chart"
-                    className="w-full h-full"
-                    allow="clipboard-write"
-                  />
+                  {poolData ? (
+                    <iframe
+                      src={`https://www.geckoterminal.com/${selectedNetwork}/pools/${poolData.attributes.address}?embed=1&info=0&swaps=0&grayscale=0&light_chart=0`}
+                      width="100%"
+                      height="100%"
+                      frameBorder="0"
+                      title="Token Price Chart"
+                      className="w-full h-full"
+                      allow="clipboard-write"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full bg-gray-50">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0052FF]"></div>
+                    </div>
+                  )}
                 </div>
+
+                {poolData && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
+                      <p className="text-sm text-gray-500">Pool Liquidity</p>
+                      <p className="text-lg font-bold">
+                        $
+                        {Number(
+                          poolData.attributes.reserve_in_usd
+                        ).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
+                      <p className="text-sm text-gray-500">24h Volume</p>
+                      <p className="text-lg font-bold">
+                        $
+                        {Number(
+                          poolData.attributes.volume_usd?.["24h"] || 0
+                        ).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
+                      <p className="text-sm text-gray-500">Market Cap</p>
+                      <p className="text-lg font-bold">
+                        $
+                        {Number(
+                          poolData.attributes.market_cap_usd || 0
+                        ).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4">
+                      <p className="text-sm text-gray-500">Price Change 24h</p>
+                      <p
+                        className={`text-lg font-bold ${
+                          Number(
+                            poolData.attributes.price_change_percentage?.[
+                              "24h"
+                            ] || 0
+                          ) >= 0
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }`}>
+                        {Number(
+                          poolData.attributes.price_change_percentage?.[
+                            "24h"
+                          ] || 0
+                        ).toFixed(2)}
+                        %
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

@@ -124,7 +124,8 @@ export default function LaunchForm() {
     return () => {
       if (window.ethereum) {
         window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        window.ethereum.removeListener('chainChanged', null);
+        // Fix: Don't pass null as a listener
+        window.ethereum.removeListener('chainChanged', () => {});
       }
     };
   }, []);

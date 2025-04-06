@@ -109,17 +109,17 @@ export default function InsurancePage() {
   const maxPoolCapacity = 1000000; // 1M USDC
   const currentFillPercentage = (parseInt(poolData.totalStaked.replace(/[^0-9]/g, '')) / maxPoolCapacity) * 100;
 
-  if (!authenticated) {
-    return (
-      <div className="mt-20 flex justify-center items-center min-h-[60vh]">
-        <div className="text-center p-8 rounded-lg bg-white/80 backdrop-blur-sm shadow-xl">
-          <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C]">
-            Please connect your wallet to access insurance features
-          </h2>
-        </div>
-      </div>
-    );
-  }
+//   if (!authenticated) {
+//     return (
+//       <div className="mt-20 flex justify-center items-center min-h-[60vh]">
+//         <div className="text-center p-8 rounded-lg bg-white/80 backdrop-blur-sm shadow-xl">
+//           <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C]">
+//             Please connect your wallet to access insurance features
+//           </h2>
+//         </div>
+//       </div>
+//     );
+//   }
 
   return (
     <div className="mt-20 container mx-auto px-4 max-w-6xl">

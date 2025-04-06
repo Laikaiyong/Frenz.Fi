@@ -4,6 +4,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { marked } from "marked";
 import { usePrivy } from "@privy-io/react-auth";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -11,13 +12,13 @@ import getGroqChatCompletion from "../api/groq/getGroqChatCompletion";
 import getTokensOwnedByAccount from "../../utils/nodit/token/useGetTokensOwnedByAccount";
 
 const SAMPLE_PROMPTS = [
-    "What is the Base blockchain?",
-    "What is the Celo ecosystem in DeFAI",
-    "What is liquidity pool?",
-    "What are the best DeFi strategies?",
-    "Search about uniswap and how hooks help Defi",
-    "How to use Nodit Blockchain API to improve my crypto portfolio?",
-  ];
+  "What is the Base blockchain?",
+  "What is the Celo ecosystem in DeFAI",
+  "What is liquidity pool?",
+  "What are the best DeFi strategies?",
+  "Search about uniswap and how hooks help Defi",
+  "How to use Nodit Blockchain API to improve my crypto portfolio?",
+];
 
 export default function ChatPage() {
   const { authenticated, user } = usePrivy();
@@ -30,6 +31,19 @@ export default function ChatPage() {
   const [selectedNetwork, setSelectedNetwork] = useState();
   const [searchResults, setSearchResults] = useState(null);
 
+  const renderer = new marked.Renderer();
+  renderer.link = (href, title, text) => {
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${text}</a>`;
+  };
+
+  marked.setOptions({
+    renderer,
+    headerIds: false,
+    gfm: true,
+    breaks: true,
+    sanitize: true,
+  });
+
   useEffect(() => {
     const network = localStorage.getItem("selectedPill");
     setSelectedNetwork(network);
@@ -37,9 +51,8 @@ export default function ChatPage() {
 
   const handlePromptClick = (prompt) => {
     setInput(prompt);
-    handleSubmit(new Event('submit'));
+    handleSubmit(new Event("submit"));
   };
-
 
   const fetchTokenData = async () => {
     try {
@@ -160,7 +173,16 @@ export default function ChatPage() {
                         ? "bg-gradient-to-r from-[#627EEA] via-[#0052FF] to-[#FBCC5C] text-white"
                         : "bg-gray-100"
                     }`}>
-                    {message.content}
+                    {message.role === "user" ? (
+                      message.content
+                    ) : (
+                      <div
+                        className="prose prose-sm max-w-none prose-blue"
+                        dangerouslySetInnerHTML={{
+                          __html: marked(message.content),
+                        }}
+                      />
+                    )}
                   </div>
                 </motion.div>
               ))}
@@ -185,8 +207,7 @@ export default function ChatPage() {
                     className="text-sm px-4 py-2 rounded-full border border-gray-200 
                              bg-white hover:bg-gray-50 text-gray-700 
                              transition-all cursor-pointer whitespace-nowrap
-                             hover:border-[#0052FF] hover:text-[#0052FF]"
-                  >
+                             hover:border-[#0052FF] hover:text-[#0052FF]">
                     {prompt}
                   </motion.button>
                 ))}

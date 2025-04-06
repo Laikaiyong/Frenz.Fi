@@ -8,8 +8,9 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import getTokensOwnedByAccount from "../../utils/nodit/token/useGetTokensOwnedByAccount";
 import Link from "next/link";
+import { marked } from "marked";
 import getGroqChatCompletion from "../api/groq/getGroqChatCompletion";
-import axios from 'axios';
+import axios from "axios";
 
 export async function getBalance(network, address) {
   if (!address) return "0";
@@ -20,58 +21,57 @@ export async function getBalance(network, address) {
 
     if (network === "base") {
       config = {
-        method: 'post',
-        url: 'https://base-mainnet.nodit.io/',
+        method: "post",
+        url: "https://base-mainnet.nodit.io/",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-API-KEY': process.env.NEXT_PUBLIC_NODIT_API_KEY
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-API-KEY": process.env.NEXT_PUBLIC_NODIT_API_KEY,
         },
         data: {
           id: 1,
           jsonrpc: "2.0",
           method: "eth_getBalance",
-          params: [address, "latest"]
-        }
+          params: [address, "latest"],
+        },
       };
     } else if (network === "ethereum") {
       config = {
-        method: 'post',
-        url: 'https://ethereum-mainnet.nodit.io/',
+        method: "post",
+        url: "https://ethereum-mainnet.nodit.io/",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-API-KEY': process.env.NEXT_PUBLIC_NODIT_API_KEY
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-API-KEY": process.env.NEXT_PUBLIC_NODIT_API_KEY,
         },
         data: {
           id: 1,
           jsonrpc: "2.0",
           method: "eth_getBalance",
-          params: [address, "latest"]
-        }
+          params: [address, "latest"],
+        },
       };
     } else if (network === "celo") {
       config = {
-        method: 'post',
-        url: 'https://alfajores-forno.celo-testnet.org',
+        method: "post",
+        url: "https://alfajores-forno.celo-testnet.org",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         data: {
           id: 1,
           jsonrpc: "2.0",
           method: "eth_getBalance",
-          params: [address, "latest"]
-        }
+          params: [address, "latest"],
+        },
       };
     }
 
     const response = await axios(config);
     const balance = parseInt(response.data.result, 16);
     return (balance / 1e18).toFixed(4); // Convert from wei to ETH/CELO
-
   } catch (error) {
-    console.error('Error fetching balance:', error);
+    console.error("Error fetching balance:", error);
     return "0";
   }
 }
@@ -83,6 +83,44 @@ export default function ProfilePage() {
   const chatEndRef = useRef(null);
   const [account, setAccount] = useState(null);
   const [isMetaMaskConnected, setIsMetaMaskConnected] = useState(false);
+
+  async function analyzeWallet(tokens, nativeBalance, network) {
+    const portfolioSummary = `
+      Network: ${network}
+      Native Balance: ${nativeBalance} ETH
+      Token Holdings: ${tokens.holdings
+        .map((token) => `${token.balance} ${token.symbol} (${token.name})`)
+        .join(", ")}
+      Deployed Tokens: ${tokens.deployed
+        .map(
+          (token) =>
+            `${token.name} (${token.symbol}) - Total Supply: ${token.totalSupply}, Holders: ${token.holders}`
+        )
+        .join(", ")}
+    `;
+
+    try {
+      const analysis = await getGroqChatCompletion(
+        `Analyze this crypto wallet portfolio and provide insights: ${portfolioSummary}. 
+         Include: 
+         1. Total number of different tokens
+         2. Portfolio diversity
+         3. Any significant holdings
+         4. Notable deployed tokens
+         5. Recommendations for portfolio management`,
+        []
+      );
+
+      return analysis.message;
+    } catch (error) {
+      console.error("Error analyzing wallet:", error);
+      return "Unable to analyze wallet at this time.";
+    }
+  }
+
+  // Add state for analysis in the component
+  const [walletAnalysis, setWalletAnalysis] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const [tokens, setTokens] = useState({
     holdings: [],
@@ -114,6 +152,24 @@ export default function ProfilePage() {
   };
 
   const [nativeBalance, setNativeBalance] = useState("0");
+
+  // Add this useEffect after the other useEffects
+  useEffect(() => {
+    const getAnalysis = async () => {
+      if (tokens.holdings.length > 0 || tokens.deployed.length > 0) {
+        setIsAnalyzing(true);
+        const analysis = await analyzeWallet(
+          tokens,
+          nativeBalance,
+          selectedNetwork
+        );
+        setWalletAnalysis(analysis);
+        setIsAnalyzing(false);
+      }
+    };
+
+    getAnalysis();
+  }, [tokens, nativeBalance, selectedNetwork]);
 
   // Add this useEffect to fetch balance when account or network changes
   useEffect(() => {
@@ -159,7 +215,6 @@ export default function ProfilePage() {
     const network = localStorage.getItem("selectedPill");
     setSelectedNetwork(network);
   }, []);
-
 
   async function fetchAndSetTokens() {
     if (!account || !selectedNetwork) return;
@@ -264,9 +319,7 @@ export default function ProfilePage() {
               {account.slice(0, 6)}...{account.slice(-4)}
             </p>
             <div className="px-4 py-2 rounded-full bg-white/50 backdrop-blur-sm shadow-sm">
-              <span className="font-medium">
-                {nativeBalance} ETH
-              </span>
+              <span className="font-medium">{nativeBalance} ETH</span>
             </div>
           </div>
           <p className="text-sm text-gray-500 capitalize">
@@ -276,6 +329,27 @@ export default function ProfilePage() {
       </motion.div>
 
       <>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-12 p-6 rounded-lg bg-white/80 backdrop-blur-sm shadow-xl">
+          <h2 className="text-2xl font-bold mb-4">Portfolio Analysis</h2>
+          {isAnalyzing ? (
+            <div className="flex items-center justify-center py-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0052FF]"></div>
+              <span className="ml-3 text-gray-600">Analyzing portfolio...</span>
+            </div>
+          ) : (
+            <div className="prose prose-blue max-w-none">
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: marked(walletAnalysis),
+                }}
+              />
+            </div>
+          )}
+        </motion.div>
         {/* Token Holdings */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

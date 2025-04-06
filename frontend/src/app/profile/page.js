@@ -9,6 +9,72 @@ import { motion } from "framer-motion";
 import getTokensOwnedByAccount from "../../utils/nodit/token/useGetTokensOwnedByAccount";
 import Link from "next/link";
 import getGroqChatCompletion from "../api/groq/getGroqChatCompletion";
+import axios from 'axios';
+
+export async function getBalance(network, address) {
+  if (!address) return "0";
+
+  try {
+    let rpcUrl;
+    let config;
+
+    if (network === "base") {
+      config = {
+        method: 'post',
+        url: 'https://base-mainnet.nodit.io/',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-API-KEY': process.env.NEXT_PUBLIC_NODIT_API_KEY
+        },
+        data: {
+          id: 1,
+          jsonrpc: "2.0",
+          method: "eth_getBalance",
+          params: [address, "latest"]
+        }
+      };
+    } else if (network === "ethereum") {
+      config = {
+        method: 'post',
+        url: 'https://ethereum-mainnet.nodit.io/',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-API-KEY': process.env.NEXT_PUBLIC_NODIT_API_KEY
+        },
+        data: {
+          id: 1,
+          jsonrpc: "2.0",
+          method: "eth_getBalance",
+          params: [address, "latest"]
+        }
+      };
+    } else if (network === "celo") {
+      config = {
+        method: 'post',
+        url: 'https://alfajores-forno.celo-testnet.org',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: {
+          id: 1,
+          jsonrpc: "2.0",
+          method: "eth_getBalance",
+          params: [address, "latest"]
+        }
+      };
+    }
+
+    const response = await axios(config);
+    const balance = parseInt(response.data.result, 16);
+    return (balance / 1e18).toFixed(4); // Convert from wei to ETH/CELO
+
+  } catch (error) {
+    console.error('Error fetching balance:', error);
+    return "0";
+  }
+}
 
 const DEFAULT_TOKEN_LOGO =
   "https://cryptologos.cc/logos/ethereum-eth-logo.svg?v=026";
@@ -46,6 +112,20 @@ export default function ProfilePage() {
       console.error("Error fetching token data:", error);
     }
   };
+
+  const [nativeBalance, setNativeBalance] = useState("0");
+
+  // Add this useEffect to fetch balance when account or network changes
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (account && selectedNetwork) {
+        const balance = await getBalance(selectedNetwork, account);
+        setNativeBalance(balance);
+      }
+    };
+
+    fetchBalance();
+  }, [account, selectedNetwork]);
 
   useEffect(() => {
     const checkMetaMaskConnection = async () => {
@@ -178,11 +258,17 @@ export default function ProfilePage() {
             Web3 Portfolio
           </span>
         </h1>
-        <div className="space-y-2">
-          <p className="text-gray-600">
-            {account.slice(0, 6)}...
-            {account.slice(-4)}
-          </p>
+        <div className="space-y-4">
+          <div className="flex items-center justify-center space-x-2">
+            <p className="text-gray-600">
+              {account.slice(0, 6)}...{account.slice(-4)}
+            </p>
+            <div className="px-4 py-2 rounded-full bg-white/50 backdrop-blur-sm shadow-sm">
+              <span className="font-medium">
+                {nativeBalance} ETH
+              </span>
+            </div>
+          </div>
           <p className="text-sm text-gray-500 capitalize">
             Network: {selectedNetwork}
           </p>

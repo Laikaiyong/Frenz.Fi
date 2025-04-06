@@ -197,18 +197,7 @@ function AppContent() {
                         </span>
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="font-bold">
-                          ${Number(token.price || 0).toFixed(6)}
-                        </span>
-                        <span
-                          className={`text-sm ${
-                            (token.change || 0) > 0
-                              ? "text-green-500"
-                              : "text-red-500"
-                          }`}>
-                          {(token.change || 0) > 0 ? "+" : ""}
-                          {Number(token.change || 0).toFixed(2)}%
-                        </span>
+                        
                       </div>
                     </div>
                   </Link>
@@ -251,11 +240,7 @@ function AppContent() {
                           ) > 0
                             ? "+"
                             : ""}
-                          {Number(
-                            pool.attributes.price_change_percentage?.["24h"] ||
-                              0
-                          ).toFixed(2)}
-                          %
+                          
                         </span>
                       </div>
                       <div className="flex justify-between text-sm text-gray-600">
@@ -265,12 +250,7 @@ function AppContent() {
                             pool.attributes.reserve_in_usd
                           ).toLocaleString()}
                         </span>
-                        <span>
-                          24h Vol: $
-                          {Number(
-                            pool.attributes.volume_usd?.["24h"] || 0
-                          ).toLocaleString()}
-                        </span>
+                        
                       </div>
                     </div>
                   </Link>
@@ -279,38 +259,100 @@ function AppContent() {
             </div>
           </div>
 
-          {/* Winners & Losers Section */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Winners & Losers Section */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white/50 dark:bg-black/50 backdrop-blur-md rounded-2xl p-6 shadow-xl">
-              <h2 className="text-2xl font-bold mb-4 text-green-500">
-                🏆 Winners
-              </h2>
-              <div className="space-y-2">
-                {/* {LAUNCHED_TOKENS.filter((t) => t.isWinner).map((token) => (
-                  <div
-                    key={token.id}
-                    className="p-4 rounded-lg bg-white/30 dark:bg-black/30">
-                    {token.name} ({token.change})
-                  </div>
-                ))} */}
-              </div>
+                <h2 className="text-2xl font-bold mb-4 text-green-500">
+                    🏆 Winners
+                </h2>
+                <div className="space-y-4">
+                    {[
+                        {
+                            id: 1,
+                            image: "https://assets.coingecko.com/coins/images/36308/standard/01_avatar.jpg?1711090303",
+                            name: "Undeads Games",
+                            symbol: "UDS", 
+                            change: "+96.2%",
+                            price: "$0.3041"
+                        },
+                        {
+                            id: 2, 
+                            image: "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
+                            name: "Ethereum",
+                            symbol: "ETH",
+                            change: "+49.0%",
+                            price: "$0.00824"
+                        },
+                        {
+                            id: 3,
+                            image: "https://assets.coingecko.com/coins/images/55027/standard/gunz.jpg?1743262298",
+                            name: "Gunz",
+                            symbol: "GUN",
+                            change: "+35.1%", 
+                            price: "$0.05605"
+                        }
+                    ].map((token) => (
+                        <div key={token.id} className="flex items-center p-4 rounded-lg bg-white/30 dark:bg-black/30">
+                            <img src={token.image} alt={token.name} className="w-8 h-8 rounded-full mr-3" />
+                            <div className="flex-1">
+                                <div className="font-medium">{token.name}</div>
+                                <div className="text-sm text-gray-500">{token.symbol}</div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-green-500">{token.change}</div>
+                                <div className="text-sm">{token.price}</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
 
             <div className="bg-white/50 dark:bg-black/50 backdrop-blur-md rounded-2xl p-6 shadow-xl">
-              <h2 className="text-2xl font-bold mb-4 text-red-500">
-                💀 Losers
-              </h2>
-              <div className="space-y-2">
-                {/* {LAUNCHED_TOKENS.filter((t) => !t.isWinner).map((token) => (
-                  <div
-                    key={token.id}
-                    className="p-4 rounded-lg bg-white/30 dark:bg-black/30">
-                    {token.name} ({token.change})
-                  </div>
-                ))} */}
-              </div>
+                <h2 className="text-2xl font-bold mb-4 text-red-500">
+                    💀 Losers
+                </h2>
+                <div className="space-y-2">
+                {[
+                        {
+                            id: 1,
+                            image: "https://assets.coingecko.com/coins/images/27344/standard/mplx.png?1696526391",
+                            name: "Metaplex",
+                            symbol: "MPLX", 
+                            change: "-7.5%",
+                            price: "$0.1762"
+                        },
+                        {
+                            id: 2, 
+                            image: "https://assets.coingecko.com/coins/images/50985/standard/infinitar.jpg?1729654559",
+                            name: "Infinitar Governance Token",
+                            symbol: "IGT",
+                            change: "-6.1%",
+                            price: "$0.3419"
+                        },
+                        {
+                            id: 3,
+                            image: "https://assets.coingecko.com/coins/images/19155/standard/ssv.png?1696518606",
+                            name: "SSV Network",
+                            symbol: "SSV",
+                            change: "-6.0%", 
+                            price: "$5.72"
+                        }
+                    ].map((token) => (
+                        <div key={token.id} className="flex items-center p-4 rounded-lg bg-white/30 dark:bg-black/30">
+                            <img src={token.image} alt={token.name} className="w-8 h-8 rounded-full mr-3" />
+                            <div className="flex-1">
+                                <div className="font-medium">{token.name}</div>
+                                <div className="text-sm text-gray-500">{token.symbol}</div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-red-500">{token.change}</div>
+                                <div className="text-sm">{token.price}</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
-          </div>
+        </div>
         </motion.div>
       )}
     </AnimatePresence>

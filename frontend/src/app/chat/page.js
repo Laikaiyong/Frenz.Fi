@@ -10,6 +10,15 @@ import { motion } from "framer-motion";
 import getGroqChatCompletion from "../api/groq/getGroqChatCompletion";
 import getTokensOwnedByAccount from "../../utils/nodit/token/useGetTokensOwnedByAccount";
 
+const SAMPLE_PROMPTS = [
+    "What is the Base blockchain?",
+    "What is the Celo ecosystem in DeFAI",
+    "What is liquidity pool?",
+    "What are the best DeFi strategies?",
+    "Search about uniswap and how hooks help Defi",
+    "How to use Nodit Blockchain API to improve my crypto portfolio?",
+  ];
+
 export default function ChatPage() {
   const { authenticated, user } = usePrivy();
   const [messages, setMessages] = useState([]);
@@ -25,6 +34,12 @@ export default function ChatPage() {
     const network = localStorage.getItem("selectedPill");
     setSelectedNetwork(network);
   }, []);
+
+  const handlePromptClick = (prompt) => {
+    setInput(prompt);
+    handleSubmit(new Event('submit'));
+  };
+
 
   const fetchTokenData = async () => {
     try {
@@ -157,6 +172,25 @@ export default function ChatPage() {
                 </div>
               )}
               <div ref={chatEndRef} />
+            </div>
+
+            <div className="mb-4">
+              <div className="flex flex-wrap gap-2">
+                {SAMPLE_PROMPTS.map((prompt, index) => (
+                  <motion.button
+                    key={index}
+                    onClick={() => handlePromptClick(prompt)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="text-sm px-4 py-2 rounded-full border border-gray-200 
+                             bg-white hover:bg-gray-50 text-gray-700 
+                             transition-all cursor-pointer whitespace-nowrap
+                             hover:border-[#0052FF] hover:text-[#0052FF]"
+                  >
+                    {prompt}
+                  </motion.button>
+                ))}
+              </div>
             </div>
 
             {/* Input Form */}

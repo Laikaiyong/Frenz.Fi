@@ -16,7 +16,6 @@ export async function getBalance(network, address) {
   if (!address) return "0";
 
   try {
-    let rpcUrl;
     let config;
 
     if (network === "base") {
@@ -154,22 +153,6 @@ export default function ProfilePage() {
   const [nativeBalance, setNativeBalance] = useState("0");
 
   // Add this useEffect after the other useEffects
-  useEffect(() => {
-    const getAnalysis = async () => {
-      if (tokens.holdings.length > 0 || tokens.deployed.length > 0) {
-        setIsAnalyzing(true);
-        const analysis = await analyzeWallet(
-          tokens,
-          nativeBalance,
-          selectedNetwork
-        );
-        setWalletAnalysis(analysis);
-        setIsAnalyzing(false);
-      }
-    };
-
-    getAnalysis();
-  }, [tokens, nativeBalance, selectedNetwork]);
 
   // Add this useEffect to fetch balance when account or network changes
   useEffect(() => {
@@ -214,7 +197,7 @@ export default function ProfilePage() {
     checkMetaMaskConnection();
     const network = localStorage.getItem("selectedPill");
     setSelectedNetwork(network);
-  }, []);
+  }, [account]);
 
   async function fetchAndSetTokens() {
     if (!account || !selectedNetwork) return;
@@ -276,6 +259,21 @@ export default function ProfilePage() {
       setTransformedTokens(transformedTokens);
     }
   }, [tokenOwned]);
+
+  useEffect(() => {
+    const getAnalysis = async () => {
+        setIsAnalyzing(true);
+        const analysis = await analyzeWallet(
+          tokens,
+          nativeBalance,
+          selectedNetwork
+        );
+        setWalletAnalysis(analysis);
+        setIsAnalyzing(false);
+    };
+
+    getAnalysis();
+  }, []);
 
   if (!account) {
     return (

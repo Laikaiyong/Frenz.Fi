@@ -49,10 +49,10 @@ export default function Navbar() {
           }
         });
 
-        // Listen for chain changes
-        window.ethereum.on("chainChanged", (chainId) => {
-          updateSelectedNetwork(chainId);
-        });
+        // // Listen for chain changes
+        // window.ethereum.on("chainChanged", (chainId) => {
+        //   updateSelectedNetwork(chainId);
+        // });
       } catch (error) {
         console.error("Error checking MetaMask connection:", error);
       }

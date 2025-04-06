@@ -3,6 +3,22 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
+const NETWORK_TOKENS = {
+  'base': { // Base Mainnet
+    USDC: '0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1',
+    WETH: '0x4200000000000000000000000000000000000006',
+    DAI: '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb'
+  },
+  'celo': { // Celo Alfajores
+    CELO: '0xF194afDf50B03e69Bd7D057c1Aa9e10c9954E4C9',
+    cUSD: '0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1'
+  },
+  'ethereum': { // Sepolia
+    WETH: '0x7af963cF6D228E564e2A0aA0DdBF06210B38615D',
+    USDC: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
+  }
+};
+
 export default function CreatePool() {
   const [hookInfo, setHookInfo] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
@@ -127,6 +143,38 @@ export default function CreatePool() {
       setError('Failed to load hook information: ' + err.message);
     }
   }
+
+  useEffect(() => {
+    // Get initial selected network from localStorage
+    const storedNetwork = localStorage.getItem("selectedPill");
+    // Set default token addresses when network changes
+    if (NETWORK_TOKENS[storedNetwork]) {
+      const tokens = Object.entries(NETWORK_TOKENS[storedNetwork]);
+      if (tokens.length >= 2) {
+        // Set first token as token0
+        const [symbol0, address0] = tokens[0];
+        setToken0Address(address0);
+        setToken0Symbol(symbol0);
+        
+        // Set second token as token1
+        const [symbol1, address1] = tokens[1];
+        setToken1Address(address1);
+        setToken1Symbol(symbol1);
+        
+        // Lookup additional token info
+        lookupTokenInfo(address0, setToken0Symbol, setToken0Decimals);
+        lookupTokenInfo(address1, setToken1Symbol, setToken1Decimals);
+      }
+    } else {
+      // Reset token fields if network not supported
+      setToken0Address('');
+      setToken1Address('');
+      setToken0Symbol('');
+      setToken1Symbol('');
+      setToken0Decimals(18);
+      setToken1Decimals(18);
+    }
+  }, []);
 
   // Check Owner Status
   useEffect(() => {

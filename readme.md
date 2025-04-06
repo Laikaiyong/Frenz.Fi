@@ -18,11 +18,23 @@ https://basescan.org/address/0xeb81c4d4f4b5dbdac055e547ee805640328eb0c0
 ## Nodeit
 - node rpc
 - web3 data api
+- Showing balances and use the user holding tokens for access control and feed as data for portfolio management
 
 ## Celo
 - powered uniswap v4 hooks, pool manager, poolswap test
 - DEFAI ( defi analyst)
 - Sentiment news
+- AI Infrastructure: 
+  - sentiment analysis
+  - news sentiment
+  - price prediction
+  - portfolio management
+  - trading signals
+- AI Flow
+  1. NLP understanding of user prompt and intents
+  2. Web searching and scraping + Data API Calls
+  3. LLM (large language model) for data analysis and summarization
+  4. Results back to user
 
 ## Celo Alfajores Deployment Details
 

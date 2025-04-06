@@ -282,7 +282,7 @@ export default function TokenDetailPage() {
             </div>
             <div className="ml-3">
               <p className="text-sm text-yellow-700">
-                Some data couldn't be loaded. API rate limits may have been exceeded.
+                Some data couldn&apos;t be loaded. API rate limits may have been exceeded.
               </p>
             </div>
           </div>
@@ -531,7 +531,7 @@ export default function TokenDetailPage() {
                 ) : uniswapError ? (
                   <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4">
                     <p className="font-bold">Connection Error</p>
-                    <p>We're having trouble connecting to the Base Mainnet. Please try again later.</p>
+                    <p>We&apos;re having trouble connecting to the Base Mainnet. Please try again later.</p>
                     <p className="text-xs mt-2 text-yellow-600">{uniswapError}</p>
                   </div>
                 ) : pools.length === 0 ? (

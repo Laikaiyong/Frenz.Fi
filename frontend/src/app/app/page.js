@@ -277,9 +277,9 @@ function AppContent() {
                         },
                         {
                             id: 2, 
-                            image: "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
-                            name: "Ethereum",
-                            symbol: "ETH",
+                            image: "https://assets.coingecko.com/coins/images/761/standard/FUN.png?1696501914",
+                            name: "FUNToken",
+                            symbol: "FUN",
                             change: "+49.0%",
                             price: "$0.00824"
                         },
